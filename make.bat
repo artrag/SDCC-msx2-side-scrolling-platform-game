@@ -63,9 +63,9 @@ sdcc %CCFLAGS% -o %BUILD%mytestrom.rel 	--codeseg BANK0 --code-size %BANK0_SIZE%
 sdcc %CCFLAGS% -o  %BUILD%data0.rel		--codeseg BANK2 --code-size %BANKn_SIZE% -c src\data0.c		
 sdcc %CCFLAGS% -o  %BUILD%data1.rel		--codeseg BANK4 --code-size %BANKn_SIZE% -c src\data1.c		
 
-sdcc %CCFLAGS% -o %BUILD%main.ihx --data-loc %RAM_ADDR% %BANKS_ADDR% %BUILD%megarom.rel  %BUILD%data0.rel %BUILD%data1.rel %BUILD%mytestrom.rel
+sdcc %CCFLAGS% -o %BUILD%mytestrom.ihx --data-loc %RAM_ADDR% %BANKS_ADDR% %BUILD%megarom.rel  %BUILD%data0.rel %BUILD%data1.rel %BUILD%mytestrom.rel
 
-.\build_win\makerom.exe %BUILD%main.ihx main.rom
+.\build_win\makerom.exe %BUILD%mytestrom.ihx mytestrom.rom
 
 setlocal EnableDelayedExpansion
  
@@ -82,4 +82,4 @@ rem # -- End of Self Path Identifizer
 set OPENMSX_APP_PATH=F:\openMSX\
 set MSX_MACHINE_SCRIPT_PATH=F:\SDCC\MSX_Fusion-C_V1.3\WorkingFolder\sdcc_megarom-master\util\
 
-start /b /d %PARENT_DIR%\sdcc_megarom-master %OPENMSX_APP_PATH%openmsx.exe -script %MSX_MACHINE_SCRIPT_PATH%2-emul_start_MSX2_config.txt  -carta main.rom
+start /b /d %PARENT_DIR%\sdcc_megarom-master %OPENMSX_APP_PATH%openmsx.exe -script %MSX_MACHINE_SCRIPT_PATH%2-emul_start_MSX2_config.txt  -carta mytestrom.rom

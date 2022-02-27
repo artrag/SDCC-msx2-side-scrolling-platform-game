@@ -1,0 +1,292 @@
+ASxxxx Linker V03.00 + NoICE + sdld,  page 1.
+Hexadecimal  [32-Bits]
+
+Area                                    Addr        Size        Decimal Bytes (Attributes)
+--------------------------------        ----        ----        ------- ----- ------------
+.  .ABS.                            00000000    00000000 =           0. bytes (ABS,CON)
+
+      Value  Global                              Global Defined In Module
+      -----  --------------------------------   ------------------------
+     00000000  .__.ABS.                           mytestrom
+     00000000  l__BANK10                       
+     00000000  l__BANK12                       
+     00000000  l__BANK14                       
+     00000000  l__BANK16                       
+     00000000  l__BANK18                       
+     00000000  l__BANK20                       
+     00000000  l__BANK22                       
+     00000000  l__BANK24                       
+     00000000  l__BANK26                       
+     00000000  l__BANK28                       
+     00000000  l__BANK30                       
+     00000000  l__BANK32                       
+     00000000  l__BANK34                       
+     00000000  l__BANK36                       
+     00000000  l__BANK38                       
+     00000000  l__BANK40                       
+     00000000  l__BANK42                       
+     00000000  l__BANK44                       
+     00000000  l__BANK46                       
+     00000000  l__BANK48                       
+     00000000  l__BANK50                       
+     00000000  l__BANK52                       
+     00000000  l__BANK54                       
+     00000000  l__BANK56                       
+     00000000  l__BANK58                       
+     00000000  l__BANK6                        
+     00000000  l__BANK60                       
+     00000000  l__BANK62                       
+     00000000  l__BANK8                        
+     00000000  l__CABS                         
+     00000000  l__CODE                         
+     00000000  l__DABS                         
+     00000000  l__GSFINAL                      
+     00000000  l__GSINIT                       
+     00000000  l__HEADER                       
+     00000000  l__HOME                         
+     00000000  l__INITIALIZED                  
+     00000000  l__INITIALIZER                  
+     00000000  s__CABS                         
+     00000000  s__DABS                         
+     00000000  s__HEADER                       
+     00000000  s__HEADER0                      
+     00000002  b_data0                            data0
+     00000004  b_data1                            data1
+     000000C4  l__HEADER0                      
+     00000200  s__CODE                         
+     00000B6E  l__DATA                         
+     00002162  l__BANK0                        
+     00004000  l__BANK2                        
+ASxxxx Linker V03.00 + NoICE + sdld,  page 2.
+Hexadecimal  [32-Bits]
+
+Area                                    Addr        Size        Decimal Bytes (Attributes)
+--------------------------------        ----        ----        ------- ----- ------------
+.  .ABS.                            00000000    00000000 =           0. bytes (ABS,CON)
+
+      Value  Global                              Global Defined In Module
+      -----  --------------------------------   ------------------------
+     00004000  l__BANK4                        
+     00004100  s__BANK0                        
+     0000C000  s__DATA                         
+     0000CB6E  s__GSFINAL                      
+     0000CB6E  s__GSINIT                       
+     0000CB6E  s__HOME                         
+     0000CB6E  s__INITIALIZED                  
+     0000CB6E  s__INITIALIZER                  
+     0000F3DF  _RG0SAV                            mytestrom
+     0000F3E0  _RG1SAV                            mytestrom
+     0000FFE7  _RG8SAV                            mytestrom
+     0000FFE8  _RG9SAV                            mytestrom
+     0000FFE9  _RG10SA                            mytestrom
+     0000FFEA  _RG11SA                            mytestrom
+     0000FFEB  _RG12SA                            mytestrom
+     0000FFEC  _RG13SA                            mytestrom
+     0000FFED  _RG14SA                            mytestrom
+     0000FFEE  _RG15SA                            mytestrom
+     0000FFEF  _RG16SA                            mytestrom
+     0000FFF0  _RG17SA                            mytestrom
+     0000FFF1  _RG18SA                            mytestrom
+     00028000  s__BANK2                        
+     00048000  s__BANK4                        
+     00068000  s__BANK6                        
+     00088000  s__BANK8                        
+     000A8000  s__BANK10                       
+     000C8000  s__BANK12                       
+     000E8000  s__BANK14                       
+     00108000  s__BANK16                       
+     00128000  s__BANK18                       
+     00148000  s__BANK20                       
+     00168000  s__BANK22                       
+     00188000  s__BANK24                       
+     001A8000  s__BANK26                       
+     001C8000  s__BANK28                       
+     001E8000  s__BANK30                       
+     00208000  s__BANK32                       
+     00228000  s__BANK34                       
+     00248000  s__BANK36                       
+     00266000  s__BANK38                       
+     00288000  s__BANK40                       
+     002A8000  s__BANK42                       
+     002C8000  s__BANK44                       
+     002E8000  s__BANK46                       
+     00308000  s__BANK48                       
+     00328000  s__BANK50                       
+     00348000  s__BANK52                       
+     00368000  s__BANK54                       
+     00388000  s__BANK56                       
+     003A8000  s__BANK58                       
+     003C8000  s__BANK62                       
+ASxxxx Linker V03.00 + NoICE + sdld,  page 3.
+Hexadecimal  [32-Bits]
+
+Area                                    Addr        Size        Decimal Bytes (Attributes)
+--------------------------------        ----        ----        ------- ----- ------------
+.  .ABS.                            00000000    00000000 =           0. bytes (ABS,CON)
+
+      Value  Global                              Global Defined In Module
+      -----  --------------------------------   ------------------------
+     003E8000  s__BANK60                       
+ASxxxx Linker V03.00 + NoICE + sdld,  page 4.
+Hexadecimal  [32-Bits]
+
+Area                                    Addr        Size        Decimal Bytes (Attributes)
+--------------------------------        ----        ----        ------- ----- ------------
+_BANK0                              00004100    00002162 =        8546. bytes (REL,CON)
+
+      Value  Global                              Global Defined In Module
+      -----  --------------------------------   ------------------------
+     00004100  _main                              mytestrom
+     00004298  _ScrollRight                       mytestrom
+     00004361  _ScrollLeft                        mytestrom
+     00004417  _PlotOneColumnTile                 mytestrom
+     000044C7  _PlotOneColumnTileAndMask          mytestrom
+     000045E7  _BorderLinesL                      mytestrom
+     00004670  _BorderLinesR                      mytestrom
+     000046F9  _NewLine                           mytestrom
+     0000477F  _PatchPlotOneTile                  mytestrom
+     000047C9  _myVDPwrite                        mytestrom
+     000047D3  _myInPort                          mytestrom
+     000047D7  _myOutPort                         mytestrom
+     000047DB  _myfVDP                            mytestrom
+     0000481B  _mySetAdjust                       mytestrom
+     00004838  _myFT_wait                         mytestrom
+     0000483F  _WaitLineInt                       mytestrom
+     00004856  _FT_errorHandler                   mytestrom
+     00004913  _MyLoadMap                         mytestrom
+     0000492B  _myISR                             mytestrom
+     00004948  _myInstISR                         mytestrom
+     00004968  _myISRrestore                      mytestrom
+     00004986  _myCheckkbd                        mytestrom
+     00004994  _ObjectsInit                       mytestrom
+     00004A36  _ObjectstoVRAM                     mytestrom
+     00004B72  _UpdateColor                       mytestrom
+     00004BB4  _UpdateFrame                       mytestrom
+     00004BFA  _SprtInit                          mytestrom
+     00004C90  _VramWrite                         mytestrom
+     00004C9A  _SetVramW                          mytestrom
+     00004CB7  _chgmod                            mytestrom
+     00004CBA  _putch                             mytestrom
+     00004CBD  _myHMMV                            mytestrom
+     00004D0B  _SetDisplayPage                    mytestrom
+     00004D26  _VDPlineSwitch                     mytestrom
+     00004D38  _VDP60Hz                           mytestrom
+     00004D4A  _PrintChar                         mytestrom
+     00004D5C  _Print                             mytestrom
+     00004D7D  _myVDPready                        mytestrom
+     00004D94  _sprite_patterns                   mytestrom
+     00005894  _sprite_colors                     mytestrom
+     00005E14  _DataLevelMap                      mytestrom
+
+ASxxxx Linker V03.00 + NoICE + sdld,  page 5.
+Hexadecimal  [32-Bits]
+
+Area                                    Addr        Size        Decimal Bytes (Attributes)
+--------------------------------        ----        ----        ------- ----- ------------
+_BANK2                              00028000    00004000 =       16384. bytes (REL,CON)
+
+      Value  Global                              Global Defined In Module
+      -----  --------------------------------   ------------------------
+     00028000  _data0                             data0
+
+ASxxxx Linker V03.00 + NoICE + sdld,  page 6.
+Hexadecimal  [32-Bits]
+
+Area                                    Addr        Size        Decimal Bytes (Attributes)
+--------------------------------        ----        ----        ------- ----- ------------
+_BANK4                              00048000    00004000 =       16384. bytes (REL,CON)
+
+      Value  Global                              Global Defined In Module
+      -----  --------------------------------   ------------------------
+     00048000  _data1                             data1
+
+ASxxxx Linker V03.00 + NoICE + sdld,  page 7.
+Hexadecimal  [32-Bits]
+
+Area                                    Addr        Size        Decimal Bytes (Attributes)
+--------------------------------        ----        ----        ------- ----- ------------
+_HEADER0                            00000000    000000C4 =         196. bytes (ABS,CON)
+
+      Value  Global                              Global Defined In Module
+      -----  --------------------------------   ------------------------
+     00004020  megarom                            
+     00004075  ___sdcc_bcall                      
+     0000407E  ___sdcc_bcall_abc                  
+     000040A3  ___sdcc_bcall_ehl                  
+
+ASxxxx Linker V03.00 + NoICE + sdld,  page 8.
+Hexadecimal  [32-Bits]
+
+Area                                    Addr        Size        Decimal Bytes (Attributes)
+--------------------------------        ----        ----        ------- ----- ------------
+_DATA                               0000C000    00000B6E =        2926. bytes (REL,CON)
+
+      Value  Global                              Global Defined In Module
+      -----  --------------------------------   ------------------------
+     0000C000  _curr_bank                         
+     0000C020  _WLevelx                           mytestrom
+     0000C022  _WLevely                           mytestrom
+     0000C023  _LevelW                            mytestrom
+     0000C024  _LevelH                            mytestrom
+     0000C025  _WLevelDX                          mytestrom
+     0000C027  _WLevelDY                          mytestrom
+     0000C029  _newx                              mytestrom
+     0000C02A  _page                              mytestrom
+     0000C02B  _OldIsr                            mytestrom
+     0000C02E  _cursat                            mytestrom
+     0000C02F  _LevelMap                          mytestrom
+     0000CB31  _object                            mytestrom
+     0000CB69  _u                                 mytestrom
+     0000CB6B  _y                                 mytestrom
+     0000CB6C  _x                                 mytestrom
+     0000CB6D  _v                                 mytestrom
+
+ASxxxx Linker V03.00 + NoICE + sdld,  page 9.
+
+Files Linked                              [ module(s) ]
+
+build\megarom.rel                         [  ]
+build\data0.rel                           [ data0 ]
+build\data1.rel                           [ data1 ]
+build\mytestrom.rel                       [ mytestrom ]
+
+ASxxxx Linker V03.00 + NoICE + sdld,  page 10.
+
+User Base Address Definitions
+
+_CODE = 0x0200
+_DATA = 0xc000
+_BANK0=0x004100
+_BANK2=0x028000
+_BANK4=0x048000
+_BANK6=0x068000
+_BANK8=0x088000
+_BANK10=0x0a8000
+_BANK12=0x0c8000
+_BANK14=0x0e8000
+_BANK16=0x108000
+_BANK18=0x128000
+_BANK20=0x148000
+_BANK22=0x168000
+_BANK24=0x188000
+_BANK26=0x1a8000
+_BANK28=0x1c8000
+_BANK30=0x1e8000
+_BANK32=0x208000
+_BANK34=0x228000
+_BANK36=0x248000
+_BANK38=0x266000
+_BANK40=0x288000
+_BANK42=0x2a8000
+_BANK44=0x2c8000
+_BANK46=0x2e8000
+_BANK48=0x308000
+_BANK50=0x328000
+_BANK52=0x348000
+_BANK54=0x368000
+_BANK56=0x388000
+_BANK58=0x3a8000
+_BANK60=0x3e8000
+_BANK62=0x3c8000
+
+
