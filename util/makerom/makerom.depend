@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1643581825 source:f:\sdcc\msx_fusion-c_v1.3\workingfolder\sdcc_megarom-master\util\makerom\makerom.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+

@@ -1,0 +1,114 @@
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 1.
+Hexadecimal [24-Bits]
+
+Symbol Table
+
+    .__.$$$.                                                    =  002710 L
+    .__.ABS.                                                    =  000000 G
+    .__.CPU.                                                    =  000000 L
+    .__.H$L.                                                    =  000000 L
+  7 WaitLI                                                         00075F R
+  7 _BorderLinesL                                                  0004FE GR
+  7 _BorderLinesR                                                  000587 GR
+  7 _DataLevelMap                                                  001D14 GR
+  7 _FT_errorHandler                                               00076D GR
+  1 _LevelH                                                        000022 GR
+  1 _LevelMap                                                      00002D GR
+  1 _LevelW                                                        000021 GR
+  1 _MyBorder                                                      00000F R
+  1 _MyCommand                                                     000000 R
+  7 _MyLoadMap                                                     00082A GR
+  7 _NewLine                                                       000610 GR
+  7 _ObjectsInit                                                   0008AB GR
+  7 _ObjectstoVRAM                                                 00094D GR
+  1 _OldIsr                                                        000029 GR
+  7 _PatchPlotOneTile                                              000696 GR
+  7 _PlotOneColumnTile                                             00032E GR
+  7 _PlotOneColumnTileAndMask                                      0003DE GR
+  7 _Print                                                         000C73 GR
+  7 _PrintChar                                                     000C61 GR
+    _RG0SAV                                                     =  00F3DF G
+    _RG10SA                                                     =  00FFE9 G
+    _RG11SA                                                     =  00FFEA G
+    _RG12SA                                                     =  00FFEB G
+    _RG13SA                                                     =  00FFEC G
+    _RG14SA                                                     =  00FFED G
+    _RG15SA                                                     =  00FFEE G
+    _RG16SA                                                     =  00FFEF G
+    _RG17SA                                                     =  00FFF0 G
+    _RG18SA                                                     =  00FFF1 G
+    _RG1SAV                                                     =  00F3E0 G
+    _RG8SAV                                                     =  00FFE7 G
+    _RG9SAV                                                     =  00FFE8 G
+  7 _ScrollLeft                                                    000278 GR
+  7 _ScrollRight                                                   0001AF GR
+  7 _SetDisplayPage                                                000C22 GR
+  7 _SetVramW                                                      000BB1 GR
+  7 _SprtInit                                                      000B11 GR
+  7 _UpdateColor                                                   000A89 GR
+  7 _UpdateFrame                                                   000ACB GR
+  7 _VDP60Hz                                                       000C4F GR
+  7 _VDPlineSwitch                                                 000C3D GR
+  7 _VDPready                                                      000000 R
+  7 _VramWrite                                                     000BA7 GR
+  1 _WLevelDX                                                      000023 GR
+  1 _WLevelDY                                                      000025 GR
+  1 _WLevelx                                                       00001E GR
+  1 _WLevely                                                       000020 GR
+  7 _WaitLineInt                                                   000756 GR
+  7 ___str_0                                                       0001A8 R
+  7 ___str_1                                                       0007C1 R
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 2.
+Hexadecimal [24-Bits]
+
+Symbol Table
+
+  7 ___str_2                                                       0007D8 R
+  7 ___str_3                                                       0007EF R
+  7 ___str_4                                                       000810 R
+  7 _chgmod                                                        000BCE GR
+  1 _cursat                                                        00002C GR
+  7 _main                                                          000017 GR
+  7 _myCheckkbd                                                    00089D GR
+  7 _myFT_wait                                                     00074F GR
+  7 _myHMMV                                                        000BD4 GR
+  7 _myISR                                                         000842 GR
+  7 _myISRrestore                                                  00087F GR
+  7 _myInPort                                                      0006EA GR
+  7 _myInstISR                                                     00085F GR
+  7 _myOutPort                                                     0006EE GR
+  7 _mySetAdjust                                                   000732 GR
+  7 _myVDPwrite                                                    0006E0 GR
+  7 _myfVDP                                                        0006F2 GR
+  1 _newx                                                          000027 GR
+  1 _object                                                        000B2F GR
+  1 _p                                                             000B2D R
+  1 _page                                                          000028 GR
+  7 _putch                                                         000BD1 GR
+  7 _sprite_colors                                                 001794 GR
+  7 _sprite_patterns                                               000C94 GR
+  1 _u                                                             000B67 GR
+  1 _v                                                             000B6B GR
+  1 _x                                                             000B6A GR
+  1 _y                                                             000B69 GR
+    b_data0                                                        ****** GX
+  7 checkIfReady                                                   000000 R
+  7 fvdpWait                                                       0006FD R
+  7 setsat1                                                        000856 R
+
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 3.
+Hexadecimal [24-Bits]
+
+Area Table
+
+   0 _CODE                                      size      0   flags    0
+   1 _DATA                                      size    B6C   flags    0
+   2 _INITIALIZED                               size      0   flags    0
+   3 _DABS                                      size      0   flags    8
+   4 _HOME                                      size      0   flags    0
+   5 _GSINIT                                    size      0   flags    0
+   6 _GSFINAL                                   size      0   flags    0
+   7 _BANK0                                     size   2162   flags    0
+   8 _INITIALIZER                               size      0   flags    0
+   9 _CABS                                      size      0   flags    8
+
