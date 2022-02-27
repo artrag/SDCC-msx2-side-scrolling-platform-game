@@ -31,3 +31,10 @@ Banked methods
 Mark as __banked the functions that are callable from another pages. Call bankable functions has a small performance impact.
 
 Non-banked functions are only callable inside the same module. It doesn't has any performance impact.
+
+
+Credits 
+==============
+Thanks to
+
+https://github.com/samsaga2/sdcc_megarom
