@@ -67,6 +67,10 @@ sdcc %CCFLAGS% -o %BUILD%mytestrom.ihx --data-loc %RAM_ADDR% %BANKS_ADDR% %BUILD
 
 .\build_win\makerom.exe %BUILD%mytestrom.ihx mytestrom.rom
 
+rem # -- Generate symbols for openmsx
+
+py util\gensym.py build mytestrom 
+
 setlocal EnableDelayedExpansion
  
 rem # -- Self Path Indentifer. Do not change this part of the script

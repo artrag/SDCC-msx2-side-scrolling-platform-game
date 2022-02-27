@@ -48,8 +48,6 @@
 	.globl _NewLine
 	.globl _PatchPlotOneTile
 	.globl _myVDPwrite
-	.globl _myInPort
-	.globl _myOutPort
 	.globl _myfVDP
 	.globl _mySetAdjust
 	.globl _myFT_wait
@@ -1088,26 +1086,6 @@ _myVDPwrite::
 	ei
 	ret
 ;src\mytestrom.c:709: }	
-;src\mytestrom.c:711: unsigned char myInPort(unsigned char port) __sdcccall(1) __naked __preserves_regs(b,h,l,d,e,iyl,iyh)
-;	---------------------------------
-; Function myInPort
-; ---------------------------------
-_myInPort::
-;src\mytestrom.c:718: __endasm;
-	ld	c, a ; port
-	in	a, (c) ; return value in A
-	ret
-;src\mytestrom.c:719: }
-;src\mytestrom.c:721: void myOutPort(unsigned char port,unsigned char data) __sdcccall(1) __naked __preserves_regs(a,b,h,l,d,e,iyl,iyh)
-;	---------------------------------
-; Function myOutPort
-; ---------------------------------
-_myOutPort::
-;src\mytestrom.c:729: __endasm;
-	ld	c, a ; port in A
-	out	(c),l ; value in L
-	ret
-;src\mytestrom.c:730: }
 ;src\mytestrom.c:732: void  	myfVDP(void *Address)  __sdcccall(1)  __naked
 ;	---------------------------------
 ; Function myfVDP

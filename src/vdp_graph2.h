@@ -181,25 +181,6 @@ extern  void 	VDPLINE( unsigned int DX,  unsigned int DY, unsigned int NX,  unsi
 extern	void 	fLMMM( MMMtask *VDPtask ) __z88dk_fastcall __naked;							// fast copy by structure
 
 extern void  	fVDP(void *Address)  __z88dk_fastcall  __naked;								// Fast VDP Command function by structure
-                                          				
-static void     VDPready() __naked															// Check if MSX2 VDP is ready (Internal Use)
-{ 
-__asm 
-    checkIfReady:
-    ld  a,#2
-    out (#0x99),a           ; wait till previous VDP execution is over (CE)
-    ld  a,#128+#15
-    out (#0x99),a
-    in  a,(#0x99)
-   	rra						; check CE (bit#0)
-    ld	a, #0				
-    out (#0x99),a
-    ld  a,#128+#15
-    out (#0x99),a
-    jp		c, checkIfReady
-    ret
-__endasm; 
-}
 
 
 #endif

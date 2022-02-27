@@ -55,7 +55,7 @@ Area                                    Addr        Size        Decimal Bytes (A
      000000C4  l__HEADER0                      
      00000200  s__CODE                         
      00000B6E  l__DATA                         
-     00002162  l__BANK0                        
+     0000215A  l__BANK0                        
      00004000  l__BANK2                        
 ASxxxx Linker V03.00 + NoICE + sdld,  page 2.
 Hexadecimal  [32-Bits]
@@ -132,7 +132,7 @@ Hexadecimal  [32-Bits]
 
 Area                                    Addr        Size        Decimal Bytes (Attributes)
 --------------------------------        ----        ----        ------- ----- ------------
-_BANK0                              00004100    00002162 =        8546. bytes (REL,CON)
+_BANK0                              00004100    0000215A =        8538. bytes (REL,CON)
 
       Value  Global                              Global Defined In Module
       -----  --------------------------------   ------------------------
@@ -146,38 +146,35 @@ _BANK0                              00004100    00002162 =        8546. bytes (R
      000046F9  _NewLine                           mytestrom
      0000477F  _PatchPlotOneTile                  mytestrom
      000047C9  _myVDPwrite                        mytestrom
-     000047D3  _myInPort                          mytestrom
-     000047D7  _myOutPort                         mytestrom
-     000047DB  _myfVDP                            mytestrom
-     0000481B  _mySetAdjust                       mytestrom
-     00004838  _myFT_wait                         mytestrom
-     0000483F  _WaitLineInt                       mytestrom
-     00004856  _FT_errorHandler                   mytestrom
-     00004913  _MyLoadMap                         mytestrom
-     0000492B  _myISR                             mytestrom
-     00004948  _myInstISR                         mytestrom
-     00004968  _myISRrestore                      mytestrom
-     00004986  _myCheckkbd                        mytestrom
-     00004994  _ObjectsInit                       mytestrom
-     00004A36  _ObjectstoVRAM                     mytestrom
-     00004B72  _UpdateColor                       mytestrom
-     00004BB4  _UpdateFrame                       mytestrom
-     00004BFA  _SprtInit                          mytestrom
-     00004C90  _VramWrite                         mytestrom
-     00004C9A  _SetVramW                          mytestrom
-     00004CB7  _chgmod                            mytestrom
-     00004CBA  _putch                             mytestrom
-     00004CBD  _myHMMV                            mytestrom
-     00004D0B  _SetDisplayPage                    mytestrom
-     00004D26  _VDPlineSwitch                     mytestrom
-     00004D38  _VDP60Hz                           mytestrom
-     00004D4A  _PrintChar                         mytestrom
-     00004D5C  _Print                             mytestrom
-     00004D7D  _myVDPready                        mytestrom
-     00004D94  _sprite_patterns                   mytestrom
-     00005894  _sprite_colors                     mytestrom
-     00005E14  _DataLevelMap                      mytestrom
-
+     000047D3  _myfVDP                            mytestrom
+     00004813  _mySetAdjust                       mytestrom
+     00004830  _myFT_wait                         mytestrom
+     00004837  _WaitLineInt                       mytestrom
+     0000484E  _FT_errorHandler                   mytestrom
+     0000490B  _MyLoadMap                         mytestrom
+     00004923  _myISR                             mytestrom
+     00004940  _myInstISR                         mytestrom
+     00004960  _myISRrestore                      mytestrom
+     0000497E  _myCheckkbd                        mytestrom
+     0000498C  _ObjectsInit                       mytestrom
+     00004A2E  _ObjectstoVRAM                     mytestrom
+     00004B6A  _UpdateColor                       mytestrom
+     00004BAC  _UpdateFrame                       mytestrom
+     00004BF2  _SprtInit                          mytestrom
+     00004C88  _VramWrite                         mytestrom
+     00004C92  _SetVramW                          mytestrom
+     00004CAF  _chgmod                            mytestrom
+     00004CB2  _putch                             mytestrom
+     00004CB5  _myHMMV                            mytestrom
+     00004D03  _SetDisplayPage                    mytestrom
+     00004D1E  _VDPlineSwitch                     mytestrom
+     00004D30  _VDP60Hz                           mytestrom
+     00004D42  _PrintChar                         mytestrom
+     00004D54  _Print                             mytestrom
+     00004D75  _myVDPready                        mytestrom
+     00004D8C  _sprite_patterns                   mytestrom
+     0000588C  _sprite_colors                     mytestrom
+     00005E0C  _DataLevelMap                      mytestrom
 ASxxxx Linker V03.00 + NoICE + sdld,  page 5.
 Hexadecimal  [32-Bits]
 

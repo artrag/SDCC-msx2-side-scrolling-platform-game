@@ -7,26 +7,26 @@ Symbol Table
     .__.ABS.                                                    =  000000 G
     .__.CPU.                                                    =  000000 L
     .__.H$L.                                                    =  000000 L
-  7 WaitLI                                                         000748 R
+  7 WaitLI                                                         000740 R
   7 _BorderLinesL                                                  0004E7 GR
   7 _BorderLinesR                                                  000570 GR
-  7 _DataLevelMap                                                  001D14 GR
-  7 _FT_errorHandler                                               000756 GR
+  7 _DataLevelMap                                                  001D0C GR
+  7 _FT_errorHandler                                               00074E GR
   1 _LevelH                                                        000022 GR
   1 _LevelMap                                                      00002D GR
   1 _LevelW                                                        000021 GR
   1 _MyBorder                                                      00000F R
   1 _MyCommand                                                     000000 R
-  7 _MyLoadMap                                                     000813 GR
+  7 _MyLoadMap                                                     00080B GR
   7 _NewLine                                                       0005F9 GR
-  7 _ObjectsInit                                                   000894 GR
-  7 _ObjectstoVRAM                                                 000936 GR
+  7 _ObjectsInit                                                   00088C GR
+  7 _ObjectstoVRAM                                                 00092E GR
   1 _OldIsr                                                        000029 GR
   7 _PatchPlotOneTile                                              00067F GR
   7 _PlotOneColumnTile                                             000317 GR
   7 _PlotOneColumnTileAndMask                                      0003C7 GR
-  7 _Print                                                         000C5C GR
-  7 _PrintChar                                                     000C4A GR
+  7 _Print                                                         000C54 GR
+  7 _PrintChar                                                     000C42 GR
     _RG0SAV                                                     =  00F3DF G
     _RG10SA                                                     =  00FFE9 G
     _RG11SA                                                     =  00FFEA G
@@ -42,59 +42,58 @@ Symbol Table
     _RG9SAV                                                     =  00FFE8 G
   7 _ScrollLeft                                                    000261 GR
   7 _ScrollRight                                                   000198 GR
-  7 _SetDisplayPage                                                000C0B GR
-  7 _SetVramW                                                      000B9A GR
-  7 _SprtInit                                                      000AFA GR
-  7 _UpdateColor                                                   000A72 GR
-  7 _UpdateFrame                                                   000AB4 GR
-  7 _VDP60Hz                                                       000C38 GR
-  7 _VDPlineSwitch                                                 000C26 GR
-  7 _VramWrite                                                     000B90 GR
+  7 _SetDisplayPage                                                000C03 GR
+  7 _SetVramW                                                      000B92 GR
+  7 _SprtInit                                                      000AF2 GR
+  7 _UpdateColor                                                   000A6A GR
+  7 _UpdateFrame                                                   000AAC GR
+  7 _VDP60Hz                                                       000C30 GR
+  7 _VDPlineSwitch                                                 000C1E GR
+  7 _VramWrite                                                     000B88 GR
   1 _WLevelDX                                                      000023 GR
   1 _WLevelDY                                                      000025 GR
   1 _WLevelx                                                       00001E GR
   1 _WLevely                                                       000020 GR
-  7 _WaitLineInt                                                   00073F GR
+  7 _WaitLineInt                                                   000737 GR
   7 ___str_0                                                       000191 R
-  7 ___str_1                                                       0007AA R
-  7 ___str_2                                                       0007C1 R
+  7 ___str_1                                                       0007A2 R
+  7 ___str_2                                                       0007B9 R
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 2.
 Hexadecimal [24-Bits]
 
 Symbol Table
 
-  7 ___str_3                                                       0007D8 R
-  7 ___str_4                                                       0007F9 R
-  7 _chgmod                                                        000BB7 GR
+  7 ___str_3                                                       0007D0 R
+  7 ___str_4                                                       0007F1 R
+  7 _chgmod                                                        000BAF GR
   1 _cursat                                                        00002C GR
   7 _main                                                          000000 GR
-  7 _myCheckkbd                                                    000886 GR
-  7 _myFT_wait                                                     000738 GR
-  7 _myHMMV                                                        000BBD GR
-  7 _myISR                                                         00082B GR
-  7 _myISRrestore                                                  000868 GR
-  7 _myInPort                                                      0006D3 GR
-  7 _myInstISR                                                     000848 GR
-  7 _myOutPort                                                     0006D7 GR
-  7 _mySetAdjust                                                   00071B GR
-  7 _myVDPready                                                    000C7D GR
+  7 _myCheckkbd                                                    00087E GR
+  7 _myFT_wait                                                     000730 GR
+  7 _myHMMV                                                        000BB5 GR
+  7 _myISR                                                         000823 GR
+  7 _myISRrestore                                                  000860 GR
+  7 _myInstISR                                                     000840 GR
+  7 _mySetAdjust                                                   000713 GR
+  7 _myVDPready                                                    000C75 GR
   7 _myVDPwrite                                                    0006C9 GR
-  7 _myfVDP                                                        0006DB GR
+  7 _myfVDP                                                        0006D3 GR
   1 _newx                                                          000027 GR
   1 _object                                                        000B2F GR
   1 _p                                                             000B2D R
   1 _page                                                          000028 GR
-  7 _putch                                                         000BBA GR
-  7 _sprite_colors                                                 001794 GR
-  7 _sprite_patterns                                               000C94 GR
+  7 _putch                                                         000BB2 GR
+  7 _sprite_colors                                                 00178C GR
+  7 _sprite_patterns                                               000C8C GR
   1 _u                                                             000B67 GR
   1 _v                                                             000B6B GR
   1 _x                                                             000B6A GR
   1 _y                                                             000B69 GR
     b_data0                                                        ****** GX
-  7 checkIfReady                                                   000C7D R
-  7 fvdpWait                                                       0006E6 R
-  7 setsat1                                                        00083F R
+  7 checkIfReady                                                   000C75 R
+  7 fvdpWait                                                       0006DE R
+  7 setsat1                                                        000837 R
+
 
 ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 3.
 Hexadecimal [24-Bits]
@@ -108,7 +107,7 @@ Area Table
    4 _HOME                                      size      0   flags    0
    5 _GSINIT                                    size      0   flags    0
    6 _GSFINAL                                   size      0   flags    0
-   7 _BANK0                                     size   2162   flags    0
+   7 _BANK0                                     size   215A   flags    0
    8 _INITIALIZER                               size      0   flags    0
    9 _CABS                                      size      0   flags    8
 

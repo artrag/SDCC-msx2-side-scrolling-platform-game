@@ -92,3 +92,43 @@ void UpdateFrame(char plane,char frame,char nsat) __sdcccall(1);
 
 void sprite_patterns(void) __naked;
 void sprite_colors(void) __naked;
+
+void     myVDPready(void) __naked;
+
+
+typedef struct {
+
+	unsigned int sx;		// source X (0 to 511)			R32 & 	R33
+	unsigned int sy;		// source Y (0 to 1023)			R34	&	R34
+	unsigned int dx;		// destination X (0 to 511)		R36	&	R37
+	unsigned int dy;		// destination Y (0 to 1023) 	R38	&	R39
+	unsigned int nx; 		// width (0 to 511)				R40	&	R41
+	unsigned int ny; 		// height (0 to 511)			R42	&	R43
+	unsigned char col;		// color used by some commands. R44	
+	unsigned char param;	// Parameters set the direction. Example opDOWN | opRIGHT 		R45
+	unsigned char cmd;		// VDP Command + Logical Operator : Like opLMMM | LOGICAL_XOR	R46
+} FastVDP;
+
+
+
+// VDP Commande code
+#define opHMMC 	0xF0
+#define opYMMM 	0xE0
+#define opHMMM 	0xD0
+#define opHMMV 	0xC0
+#define opLMMC 	0xB0
+#define opLMCM 	0xA0
+#define opLMMM 	0x90
+#define opLMMV 	0x80
+#define opLINE 	0x70
+#define opSRCH	0x60
+#define opPSET 	0x50
+#define opPOINT 0x40
+#define opSTOP	0x00
+
+
+// VDP Commande parameters
+#define opRIGHT 0b00000000
+#define opDOWN  0b00000000
+#define opLEFT  0b00000100
+#define opUP    0b00001000

@@ -18,8 +18,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "vdp_graph2.h"
-
 #include "myheader.h"
 
 // static FCB file;							// Init the FCB Structure varaible
@@ -79,7 +77,7 @@ void main(void)
 
 	myHMMV(0,0,256,512, 0);					// Clear all VRAM  by Byte 0 (Black)
 	DisableInterrupt();
-	VDPready();								// wait for command completion
+	myVDPready();								// wait for command completion
 	EnableInterrupt();
 
 	ObjectsInit();							// initialize logical object 
@@ -709,7 +707,7 @@ __asm
 __endasm;
 
 }	
-
+/*
 unsigned char myInPort(unsigned char port) __sdcccall(1) __naked __preserves_regs(b,h,l,d,e,iyl,iyh)
 {
 	port;
@@ -730,7 +728,7 @@ __asm
 	ret
 __endasm;
 }
-
+*/
 void  	myfVDP(void *Address)  __sdcccall(1)  __naked
 {
 	Address;
@@ -837,7 +835,7 @@ __asm
 	ld		a,#12
 	call	_myVDPwrite		
 	di
-	call	_VDPready
+	call	_myVDPready
 	ei
 	ld		l,#7
 	xor 	a,a
@@ -861,7 +859,7 @@ __asm
 	ld		a,#12
 	call	_myVDPwrite		
 	di
-	call	_VDPready
+	call	_myVDPready
 	ei
 	ld		l,#7
 	xor 	a,a
@@ -1409,7 +1407,7 @@ __asm
   add ix,sp
 
   di
-  call    _VDPready
+  call    _myVDPready
   ld    a,#36
   out    (#0x99),a
   ld    a,#128+#17
@@ -1576,6 +1574,26 @@ void Print(char* text)
       PrintChar(character);
     } 
   }
+}
+
+                                          				
+void     myVDPready(void) __naked															// Check if MSX2 VDP is ready (Internal Use)
+{ 
+__asm 
+    checkIfReady:
+    ld  a,#2
+    out (#0x99),a           ; wait till previous VDP execution is over (CE)
+    ld  a,#128+#15
+    out (#0x99),a
+    in  a,(#0x99)
+   	rra						; check CE (bit#0)
+    ld	a, #0				
+    out (#0x99),a
+    ld  a,#128+#15
+    out (#0x99),a
+    jp		c, checkIfReady
+    ret
+__endasm; 
 }
 
 
