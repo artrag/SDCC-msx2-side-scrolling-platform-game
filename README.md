@@ -2,12 +2,10 @@ How to compile?
 ===============
 
 Dependencies:
-- Linux
-- gcc
-- sdcc 4.1
+- sdcc 4.2
 
-Compile command:
-`make`
+Compile command (in Windows):
+`make.bat`
 
 Megarom
 =======
