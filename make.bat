@@ -60,10 +60,12 @@ mkdir rom  >nul: 2>nul:
 sdasz80 -o %BUILD%megarom.rel src\megarom.s
 sdcc %CCFLAGS% -o %BUILD%mytestrom.rel 	--codeseg BANK0 --code-size %BANK0_SIZE% -c src\mytestrom.c 	
 
-sdcc %CCFLAGS% -o  %BUILD%data0.rel		--codeseg BANK2 --code-size %BANKn_SIZE% -c src\data0.c		
-sdcc %CCFLAGS% -o  %BUILD%data1.rel		--codeseg BANK4 --code-size %BANKn_SIZE% -c src\data1.c		
+sdcc %CCFLAGS% -o  %BUILD%data0.rel				--codeseg BANK2 --code-size %BANKn_SIZE% -c src\data0.c		
+sdcc %CCFLAGS% -o  %BUILD%data1.rel				--codeseg BANK4 --code-size %BANKn_SIZE% -c src\data1.c		
 
-sdcc %CCFLAGS% -o %BUILD%mytestrom.ihx --data-loc %RAM_ADDR% %BANKS_ADDR% %BUILD%megarom.rel  %BUILD%data0.rel %BUILD%data1.rel %BUILD%mytestrom.rel
+sdcc %CCFLAGS% -o  %BUILD%data_levels.rel		--codeseg BANK6 --code-size %BANKn_SIZE% -c src\data_levels.c	
+
+sdcc %CCFLAGS% -o %BUILD%mytestrom.ihx --data-loc %RAM_ADDR% %BANKS_ADDR% %BUILD%megarom.rel  %BUILD%data0.rel %BUILD%data1.rel %BUILD%data_levels.rel %BUILD%mytestrom.rel
 
 .\build_win\makerom.exe %BUILD%mytestrom.ihx mytestrom.rom
 

@@ -37,6 +37,7 @@
 build\megarom.rel
 build\data0.rel
 build\data1.rel
+build\data_levels.rel
 build\mytestrom.rel
 
 -e

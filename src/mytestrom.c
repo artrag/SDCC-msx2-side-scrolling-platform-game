@@ -55,7 +55,6 @@ SAT1 = 1FA00h ; R5 = F7h;R11 = 03h
 SPG = 0F000h ; R6 = 1Eh
 */
 
-void DataLevelMap(void) __naked ;
 unsigned char  LevelMap[MaxLevelW*MaxLevelH];
 
 
@@ -67,7 +66,7 @@ void main(void)
 
 	if (rd==0) FT_errorHandler(3,"msx 1 ");	// If MSX1 got to Error !
 	
-	MyLoadMap(0,LevelMap);					// load level map 256x11 arranged by columns
+	MyLoadMap(1,LevelMap);					// load level map 256x11 arranged by columns
 	
 	chgmod(8);						  		// Init Screen 8
 	myVDPwrite(0,7);						// borders	
@@ -950,11 +949,26 @@ void FT_errorHandler(char n, char *name) __sdcccall(1)
 
 void MyLoadMap(char mapnumber,unsigned char* p ) __sdcccall(1)
 {
-	mapnumber;
+	char *q = &((char*)DataLevelMap)[2]+12*mapnumber;
+	
+	// access paged data 
+	__asm
+	ld	a,#b_DataLevelMap
+	ld (#0x9000),a
+	ld (#_curr_bank),a
+    inc a
+	ld (#0xb000),a
+	__endasm;	
 	
 	LevelW = ((char*)DataLevelMap)[0];
-	LevelH = ((char*)DataLevelMap)[1];
-	memcpy(p,&((char*)DataLevelMap)[2],MaxLevelW*MaxLevelH);
+	// LevelH = ((char*)DataLevelMap)[1];
+	LevelH = 11;
+	
+	for (char t=0;t<LevelW;t++) {
+		memcpy(p,q,11);
+		p +=11;
+		q +=24;
+	}
 }
 
 void myISR(void) __sdcccall(1) __naked
@@ -1174,62 +1188,7 @@ void ObjectstoVRAM(int MapX) __sdcccall(1)
 	myVDPwrite(0,7);
 #endif
 }
-/*
-void ObjectsUpdate(int MapX) __sdcccall(1){
-	char t;
-	char *p;
-	struct SpriteObject *q;
 
-#ifdef CPULOAD
-	myVDPwrite(0x90,7);
-#endif
-		
-	p = (cursat) ? (&sprite_sat1[0]) : (&sprite_sat0[0]);
-	
-	//p = &sprite_sat[0];
-	
-	q = &object[0];
-	
-	for (t=0; t<MaxObjNum; t++) 
-	{
-		int  u = q->x-MapX;
-		char v = q->frame * 16;
-		
-		if (q->status && (u>-16) && (u<WindowW-8)) 
-		{
-			*p++ = q->y;		
-			*p++ = u;	
-			*p = v;	
-			p+=2;v+=4;
-
-			*p++ = q->y;		
-			*p++ = u;	
-			*p = v;	
-			p+=2;v+=4;
-		  
-			*p++ = q->y+16;	
-			*p++ = u;	
-			*p = v;	
-			p+=2;v+=4;
-
-			*p++ = q->y+16;	
-			*p++ = u;	
-			*p = v;	
-			p+=2;
-		}     
-		else { 
-			*p = 217;p+=4;		// remove from screen 
-			*p = 217;p+=4;		// but do not change the frame data
-			*p = 217;p+=4;
-			*p = 217;p+=4;
-		}
-		q++;
-	}
-#ifdef CPULOAD
-	myVDPwrite(0,7);
-#endif
-}
-*/
 
 
 void UpdateColor(char plane,char frame,char nsat) __sdcccall(1){
@@ -1314,6 +1273,17 @@ void SprtInit(void) __sdcccall(1)
 	RG8SAV |= 32;
 	myVDPwrite(RG8SAV,8);
 	
+		
+	// access paged data 
+	__asm
+	ld	a,#b_sprite_colors
+	ld (#0x9000),a
+	ld (#_curr_bank),a
+    inc a
+	ld (#0xb000),a
+	__endasm;
+
+	
 	SetVramW(0,0xF800);					// sat 0
 	for (t=0; t<MaxObjNum; t++) {
 		VramWrite(((unsigned int) &sprite_colors) + (MaxObjNum-1-t)*64,64);
@@ -1323,6 +1293,15 @@ void SprtInit(void) __sdcccall(1)
 	for (t=0; t<MaxObjNum; t++) {
 		VramWrite(((unsigned int) &sprite_colors) + t*64,64);
 	}
+
+	// access paged data 
+	__asm
+	ld	a,#b_sprite_patterns
+	ld (#0x9000),a
+	ld (#_curr_bank),a
+    inc a
+	ld (#0xb000),a
+	__endasm;
 
 	SetVramW(0,0xF000);					// sprite patterns	
 	for (t=0; t<MaxObjNum; t++) {	
@@ -1596,23 +1575,3 @@ __asm
 __endasm; 
 }
 
-
-void sprite_patterns(void) __naked
-{
-__asm
-    .incbin "data\knight_frm.bin"
-__endasm;	
-}
-
-void sprite_colors(void) __naked
-{
-__asm
-    .incbin "data\knight_clr.bin"
-__endasm;	
-}
-
-void DataLevelMap(void) __naked {
-    __asm
-    .incbin "data\datamap.bin"
-    __endasm;
-}

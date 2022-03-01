@@ -8,3 +8,8 @@ void print_hello_rev() __banked;
 
 void data0(void) __banked __naked;
 void data1(void) __banked __naked;
+void data2(void) __banked __naked;
+void data3(void) __banked __naked;
+
+
+void data_levels(void) __banked __naked;

@@ -33,7 +33,6 @@ Area                                    Addr        Size        Decimal Bytes (A
      00000000  l__BANK54                       
      00000000  l__BANK56                       
      00000000  l__BANK58                       
-     00000000  l__BANK6                        
      00000000  l__BANK60                       
      00000000  l__BANK62                       
      00000000  l__BANK8                        
@@ -52,11 +51,12 @@ Area                                    Addr        Size        Decimal Bytes (A
      00000000  s__HEADER0                      
      00000002  b_data0                            data0
      00000004  b_data1                            data1
+     00000006  b_DataLevelMap                     data_levels
+     00000006  b_sprite_colors                    data_levels
+     00000006  b_sprite_patterns                  data_levels
      000000C4  l__HEADER0                      
      00000200  s__CODE                         
      00000B6E  l__DATA                         
-     0000215A  l__BANK0                        
-     00004000  l__BANK2                        
 ASxxxx Linker V03.00 + NoICE + sdld,  page 2.
 Hexadecimal  [32-Bits]
 
@@ -66,6 +66,9 @@ Area                                    Addr        Size        Decimal Bytes (A
 
       Value  Global                              Global Defined In Module
       -----  --------------------------------   ------------------------
+     00000D06  l__BANK0                        
+     000019E2  l__BANK6                        
+     00004000  l__BANK2                        
      00004000  l__BANK4                        
      00004100  s__BANK0                        
      0000C000  s__DATA                         
@@ -114,9 +117,6 @@ Area                                    Addr        Size        Decimal Bytes (A
      00328000  s__BANK50                       
      00348000  s__BANK52                       
      00368000  s__BANK54                       
-     00388000  s__BANK56                       
-     003A8000  s__BANK58                       
-     003C8000  s__BANK62                       
 ASxxxx Linker V03.00 + NoICE + sdld,  page 3.
 Hexadecimal  [32-Bits]
 
@@ -126,55 +126,55 @@ Area                                    Addr        Size        Decimal Bytes (A
 
       Value  Global                              Global Defined In Module
       -----  --------------------------------   ------------------------
+     00388000  s__BANK56                       
+     003A8000  s__BANK58                       
+     003C8000  s__BANK62                       
      003E8000  s__BANK60                       
 ASxxxx Linker V03.00 + NoICE + sdld,  page 4.
 Hexadecimal  [32-Bits]
 
 Area                                    Addr        Size        Decimal Bytes (Attributes)
 --------------------------------        ----        ----        ------- ----- ------------
-_BANK0                              00004100    0000215A =        8538. bytes (REL,CON)
+_BANK0                              00004100    00000D06 =        3334. bytes (REL,CON)
 
       Value  Global                              Global Defined In Module
       -----  --------------------------------   ------------------------
      00004100  _main                              mytestrom
-     00004298  _ScrollRight                       mytestrom
-     00004361  _ScrollLeft                        mytestrom
-     00004417  _PlotOneColumnTile                 mytestrom
-     000044C7  _PlotOneColumnTileAndMask          mytestrom
-     000045E7  _BorderLinesL                      mytestrom
-     00004670  _BorderLinesR                      mytestrom
-     000046F9  _NewLine                           mytestrom
-     0000477F  _PatchPlotOneTile                  mytestrom
-     000047C9  _myVDPwrite                        mytestrom
-     000047D3  _myfVDP                            mytestrom
-     00004813  _mySetAdjust                       mytestrom
-     00004830  _myFT_wait                         mytestrom
-     00004837  _WaitLineInt                       mytestrom
-     0000484E  _FT_errorHandler                   mytestrom
-     0000490B  _MyLoadMap                         mytestrom
-     00004923  _myISR                             mytestrom
-     00004940  _myInstISR                         mytestrom
-     00004960  _myISRrestore                      mytestrom
-     0000497E  _myCheckkbd                        mytestrom
-     0000498C  _ObjectsInit                       mytestrom
-     00004A2E  _ObjectstoVRAM                     mytestrom
-     00004B6A  _UpdateColor                       mytestrom
-     00004BAC  _UpdateFrame                       mytestrom
-     00004BF2  _SprtInit                          mytestrom
-     00004C88  _VramWrite                         mytestrom
-     00004C92  _SetVramW                          mytestrom
-     00004CAF  _chgmod                            mytestrom
-     00004CB2  _putch                             mytestrom
-     00004CB5  _myHMMV                            mytestrom
-     00004D03  _SetDisplayPage                    mytestrom
-     00004D1E  _VDPlineSwitch                     mytestrom
-     00004D30  _VDP60Hz                           mytestrom
-     00004D42  _PrintChar                         mytestrom
-     00004D54  _Print                             mytestrom
-     00004D75  _myVDPready                        mytestrom
-     00004D8C  _sprite_patterns                   mytestrom
-     0000588C  _sprite_colors                     mytestrom
-     00005E0C  _DataLevelMap                      mytestrom
+     00004299  _ScrollRight                       mytestrom
+     00004362  _ScrollLeft                        mytestrom
+     00004418  _PlotOneColumnTile                 mytestrom
+     000044C8  _PlotOneColumnTileAndMask          mytestrom
+     000045E8  _BorderLinesL                      mytestrom
+     00004671  _BorderLinesR                      mytestrom
+     000046FA  _NewLine                           mytestrom
+     00004780  _PatchPlotOneTile                  mytestrom
+     000047CA  _myVDPwrite                        mytestrom
+     000047D4  _myfVDP                            mytestrom
+     00004814  _mySetAdjust                       mytestrom
+     00004831  _myFT_wait                         mytestrom
+     00004838  _WaitLineInt                       mytestrom
+     0000484F  _FT_errorHandler                   mytestrom
+     0000490C  _MyLoadMap                         mytestrom
+     00004985  _myISR                             mytestrom
+     000049A2  _myInstISR                         mytestrom
+     000049C2  _myISRrestore                      mytestrom
+     000049E0  _myCheckkbd                        mytestrom
+     000049EE  _ObjectsInit                       mytestrom
+     00004A90  _ObjectstoVRAM                     mytestrom
+     00004BCC  _UpdateColor                       mytestrom
+     00004C0E  _UpdateFrame                       mytestrom
+     00004C54  _SprtInit                          mytestrom
+     00004D02  _VramWrite                         mytestrom
+     00004D0C  _SetVramW                          mytestrom
+     00004D29  _chgmod                            mytestrom
+     00004D2C  _putch                             mytestrom
+     00004D2F  _myHMMV                            mytestrom
+     00004D7D  _SetDisplayPage                    mytestrom
+     00004D98  _VDPlineSwitch                     mytestrom
+     00004DAA  _VDP60Hz                           mytestrom
+     00004DBC  _PrintChar                         mytestrom
+     00004DCE  _Print                             mytestrom
+     00004DEF  _myVDPready                        mytestrom
 ASxxxx Linker V03.00 + NoICE + sdld,  page 5.
 Hexadecimal  [32-Bits]
 
@@ -202,6 +202,18 @@ Hexadecimal  [32-Bits]
 
 Area                                    Addr        Size        Decimal Bytes (Attributes)
 --------------------------------        ----        ----        ------- ----- ------------
+_BANK6                              00068000    000019E2 =        6626. bytes (REL,CON)
+
+      Value  Global                              Global Defined In Module
+      -----  --------------------------------   ------------------------
+     00068000  _sprite_patterns                   data_levels
+     00068B00  _sprite_colors                     data_levels
+     00069080  _DataLevelMap                      data_levels
+ASxxxx Linker V03.00 + NoICE + sdld,  page 8.
+Hexadecimal  [32-Bits]
+
+Area                                    Addr        Size        Decimal Bytes (Attributes)
+--------------------------------        ----        ----        ------- ----- ------------
 _HEADER0                            00000000    000000C4 =         196. bytes (ABS,CON)
 
       Value  Global                              Global Defined In Module
@@ -211,7 +223,7 @@ _HEADER0                            00000000    000000C4 =         196. bytes (A
      0000407E  ___sdcc_bcall_abc                  
      000040A3  ___sdcc_bcall_ehl                  
 
-ASxxxx Linker V03.00 + NoICE + sdld,  page 8.
+ASxxxx Linker V03.00 + NoICE + sdld,  page 9.
 Hexadecimal  [32-Bits]
 
 Area                                    Addr        Size        Decimal Bytes (Attributes)
@@ -238,16 +250,17 @@ _DATA                               0000C000    00000B6E =        2926. bytes (R
      0000CB6C  _x                                 mytestrom
      0000CB6D  _v                                 mytestrom
 
-ASxxxx Linker V03.00 + NoICE + sdld,  page 9.
+ASxxxx Linker V03.00 + NoICE + sdld,  page 10.
 
 Files Linked                              [ module(s) ]
 
 build\megarom.rel                         [  ]
 build\data0.rel                           [ data0 ]
 build\data1.rel                           [ data1 ]
+build\data_levels.rel                     [ data_levels ]
 build\mytestrom.rel                       [ mytestrom ]
 
-ASxxxx Linker V03.00 + NoICE + sdld,  page 10.
+ASxxxx Linker V03.00 + NoICE + sdld,  page 11.
 
 User Base Address Definitions
 

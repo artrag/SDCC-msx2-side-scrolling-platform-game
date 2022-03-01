@@ -1,3 +1,4 @@
+#pragma once
 
 /* Interrupt	functions										 */
 inline void     EnableInterrupt() 
@@ -27,6 +28,8 @@ __asm
 __endasm; 
 }
 
+
+
 #define ReadMSXtype()	*((char*)0x2D)
 #define Reboot(x) __asm__("rst #0")
 
@@ -38,11 +41,10 @@ void 				VDPlineSwitch(void);										// Switch MSX2 VDP to 192 / 212 vertical 
 void 				Print(char *text);												// Print a string to Text screen mode
 
 void chgmod(char c) __sdcccall(1) __naked;
-void putch(char c) __sdcccall(1) __naked;
+void putch(char c) 	__sdcccall(1) __naked;
 
-// void FT_SetName( FCB *p_fcb, const char *p_name ) __sdcccall(1) ;
+
 void FT_errorHandler(char n, char *name) __sdcccall(1) ;
-// char myFT_LoadSc8Image(char *file_name, unsigned int start_Y, char *buffer) __sdcccall(1) ;
 
 void	myHMMV( unsigned int DX, unsigned int DY, unsigned int NX, unsigned int NY, char COL) __sdcccall(0) __naked;
 
@@ -57,10 +59,13 @@ void myISR(void) __sdcccall(1) __naked;
 void myInstISR(void) __sdcccall(1) __naked;
 void myISRrestore(void) __sdcccall(1) __naked;
 
-unsigned char myCheckkbd(unsigned char nrow) __sdcccall(1) __naked;
+unsigned char 	myCheckkbd(unsigned char nrow) __sdcccall(1) __naked;
 
-void 			myOutPort(unsigned char port,unsigned char data) __sdcccall(1) __naked __preserves_regs(a,b,h,l,d,e,iyl,iyh);
-unsigned char 	myInPort( unsigned char port ) __sdcccall(1) __naked __preserves_regs(b,h,l,d,e,iyl,iyh);
+// void 			myOutPort(unsigned char port,unsigned char data) __sdcccall(1) __naked __preserves_regs(a,b,h,l,d,e,iyl,iyh);
+// unsigned char 	myInPort( unsigned char port ) __sdcccall(1) __naked __preserves_regs(b,h,l,d,e,iyl,iyh);
+
+__sfr __at 0x98 Port98;
+__sfr __at 0x99 Port99;
 
 char MyLoadTiles(char *file_name) __sdcccall(1);
 void MyLoadMap(char mapnumber,unsigned char* p ) __sdcccall(1);
@@ -78,22 +83,23 @@ void SetVramW(char page, unsigned int addr) __sdcccall(1) __naked;
 void VramWrite(unsigned int addr, unsigned int len) __sdcccall(1) __naked;
 
 void SprtInit(void) __sdcccall(1) ;
-// void SatUpdate(int MapX) __sdcccall(1);
-// void SwapSat(void);
 
 #define MaxObjNum 8
 
 void ObjectsInit(void);
-// void ObjectsUpdate(int MapX) __sdcccall(1);
 void ObjectstoVRAM(int MapX) __sdcccall(1);
 
 void UpdateColor(char plane,char frame,char nsat) __sdcccall(1);
 void UpdateFrame(char plane,char frame,char nsat) __sdcccall(1);
 
+void     myVDPready(void) __naked;
+
+
+// DATA
 void sprite_patterns(void) __naked;
 void sprite_colors(void) __naked;
+void DataLevelMap(void) __banked __naked ;
 
-void     myVDPready(void) __naked;
 
 
 typedef struct {
