@@ -4,7 +4,7 @@
 set Path=%Path%;C:\Users\ragozini_a\Documents\SDCC\bin
 
 
-set CCFLAGS=-mz80 --opt-code-speed --std-c11 --no-std-crt0 --nostdlib --max-allocs-per-node 50000 
+set CCFLAGS=-mz80 --opt-code-speed --std-c11 --no-std-crt0 --nostdlib --max-allocs-per-node 20000 
 set RAM_ADDR=0xc000
 set BANK0_SIZE=0x3000
 set BANKn_SIZE=0x4000
@@ -57,15 +57,21 @@ mkdir dska >nul: 2>nul:
 mkdir dskb >nul: 2>nul:
 mkdir rom  >nul: 2>nul:
 
-sdasz80 -o %BUILD%megarom.rel src\megarom.s
-sdcc %CCFLAGS% -o %BUILD%mytestrom.rel 	--codeseg BANK0 --code-size %BANK0_SIZE% -c src\mytestrom.c 	
+
+sdasz80 -o %BUILD%megarom.rel src\megarom.s 
+rem sdasz80 -o %BUILD%megarom.rel src\megarom.s F:\SDCC\lib\src\z80\mul.s
+
+
+sdcc %CCFLAGS% -o %BUILD%mytestrom.rel 			--codeseg BANK0 --code-size %BANK0_SIZE% -c src\mytestrom.c 	
 
 sdcc %CCFLAGS% -o  %BUILD%data0.rel				--codeseg BANK2 --code-size %BANKn_SIZE% -c src\data0.c		
 sdcc %CCFLAGS% -o  %BUILD%data1.rel				--codeseg BANK4 --code-size %BANKn_SIZE% -c src\data1.c		
 
 sdcc %CCFLAGS% -o  %BUILD%data_levels.rel		--codeseg BANK6 --code-size %BANKn_SIZE% -c src\data_levels.c	
+sdcc %CCFLAGS% -o  %BUILD%intro.rel				--codeseg BANK8 --code-size %BANKn_SIZE% -c src\intro.c	
+	
 
-sdcc %CCFLAGS% -o %BUILD%mytestrom.ihx --data-loc %RAM_ADDR% %BANKS_ADDR% %BUILD%megarom.rel  %BUILD%data0.rel %BUILD%data1.rel %BUILD%data_levels.rel %BUILD%mytestrom.rel
+sdcc %CCFLAGS% -o %BUILD%mytestrom.ihx --data-loc %RAM_ADDR% %BANKS_ADDR% %BUILD%megarom.rel  %BUILD%data0.rel %BUILD%data1.rel %BUILD%data_levels.rel %BUILD%intro.rel %BUILD%mytestrom.rel
 
 .\build_win\makerom.exe %BUILD%mytestrom.ihx mytestrom.rom
 

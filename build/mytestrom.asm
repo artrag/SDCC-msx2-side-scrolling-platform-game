@@ -1,6 +1,6 @@
 ;--------------------------------------------------------
 ; File Created by SDCC : free open source ANSI-C Compiler
-; Version 4.2.0 #13049 (MINGW64)
+; Version 4.2.0 #13081 (MINGW64)
 ;--------------------------------------------------------
 	.module mytestrom
 	.optsdcc -mz80
@@ -12,6 +12,8 @@
 	.globl _PlotOneColumnTileAndMask
 	.globl _PlotOneColumnTile
 	.globl _main
+	.globl b_intro
+	.globl _intro
 	.globl b_DataLevelMap
 	.globl _DataLevelMap
 	.globl _sprite_colors
@@ -21,6 +23,17 @@
 	.globl _y
 	.globl _u
 	.globl _object
+	.globl _LevelMap
+	.globl _cursat
+	.globl _OldIsr
+	.globl _page
+	.globl _newx
+	.globl _WLevelDY
+	.globl _WLevelDX
+	.globl _LevelH
+	.globl _LevelW
+	.globl _WLevely
+	.globl _WLevelx
 	.globl _RG18SA
 	.globl _RG17SA
 	.globl _RG16SA
@@ -34,17 +47,6 @@
 	.globl _RG8SAV
 	.globl _RG1SAV
 	.globl _RG0SAV
-	.globl _LevelMap
-	.globl _cursat
-	.globl _OldIsr
-	.globl _page
-	.globl _newx
-	.globl _WLevelDY
-	.globl _WLevelDX
-	.globl _LevelH
-	.globl _LevelW
-	.globl _WLevely
-	.globl _WLevelx
 	.globl _ScrollRight
 	.globl _ScrollLeft
 	.globl _BorderLinesL
@@ -68,7 +70,10 @@
 	.globl _UpdateFrame
 	.globl _SprtInit
 	.globl _VramWrite
+	.globl _SetVramR14
+	.globl _SetVramW14
 	.globl _SetVramW
+	.globl _SetVramR
 	.globl _chgmod
 	.globl _putch
 	.globl _myHMMV
@@ -86,6 +91,19 @@ _Port99	=	0x0099
 ; ram data
 ;--------------------------------------------------------
 	.area _DATA
+_RG0SAV	=	0xf3df
+_RG1SAV	=	0xf3e0
+_RG8SAV	=	0xffe7
+_RG9SAV	=	0xffe8
+_RG10SA	=	0xffe9
+_RG11SA	=	0xffea
+_RG12SA	=	0xffeb
+_RG13SA	=	0xffec
+_RG14SA	=	0xffed
+_RG15SA	=	0xffee
+_RG16SA	=	0xffef
+_RG17SA	=	0xfff0
+_RG18SA	=	0xfff1
 _MyCommand:
 	.ds 15
 _MyBorder:
@@ -114,19 +132,6 @@ _LevelMap::
 	.ds 2816
 _p:
 	.ds 2
-_RG0SAV	=	0xf3df
-_RG1SAV	=	0xf3e0
-_RG8SAV	=	0xffe7
-_RG9SAV	=	0xffe8
-_RG10SA	=	0xffe9
-_RG11SA	=	0xffea
-_RG12SA	=	0xffeb
-_RG13SA	=	0xffec
-_RG14SA	=	0xffed
-_RG15SA	=	0xffee
-_RG16SA	=	0xffef
-_RG17SA	=	0xfff0
-_RG18SA	=	0xfff1
 _object::
 	.ds 56
 _u::
@@ -166,33 +171,39 @@ _v::
 ; Function main
 ; ---------------------------------
 _main::
-;src\mytestrom.c:65: rd = ReadMSXtype();					  	// Read MSX Type
+;src\mytestrom.c:65: intro();
+	ld	e, #b_intro
+	ld	hl, #_intro
+	call	___sdcc_bcall_ehl
+;src\mytestrom.c:67: rd = ReadMSXtype();					  	// Read MSX Type
 	ld	a, (#0x002d)
-;src\mytestrom.c:67: if (rd==0) FT_errorHandler(3,"msx 1 ");	// If MSX1 got to Error !
+;src\mytestrom.c:69: if (rd==0) FT_errorHandler(3,"msx 1 ");	// If MSX1 got to Error !
 	or	a, a
 	jr	NZ, 00102$
 	ld	de, #___str_0
 	ld	a, #0x03
 	call	_FT_errorHandler
 00102$:
-;src\mytestrom.c:69: MyLoadMap(1,LevelMap);					// load level map 256x11 arranged by columns
+;src\mytestrom.c:71: MyLoadMap(1,LevelMap);					// load level map 256x11 arranged by columns
 	ld	de, #_LevelMap
 	ld	a, #0x01
 	call	_MyLoadMap
-;src\mytestrom.c:71: chgmod(8);						  		// Init Screen 8
+;src\mytestrom.c:73: chgmod(8);						  		// Init Screen 8
 	ld	a, #0x08
 	call	_chgmod
-;src\mytestrom.c:72: myVDPwrite(0,7);						// borders	
+;src\mytestrom.c:75: ObjectsInit();							// initialize logical object 
+	call	_ObjectsInit
+;src\mytestrom.c:77: myVDPwrite(0,7);						// borders	
 	ld	l, #0x07
 ;	spillPairReg hl
 ;	spillPairReg hl
 	xor	a, a
 	call	_myVDPwrite
-;src\mytestrom.c:73: VDPlineSwitch();						// 192 lines
+;src\mytestrom.c:78: VDPlineSwitch();						// 192 lines
 	call	_VDPlineSwitch
-;src\mytestrom.c:75: VDP60Hz();
+;src\mytestrom.c:79: VDP60Hz();
 	call	_VDP60Hz
-;src\mytestrom.c:77: myHMMV(0,0,256,512, 0);					// Clear all VRAM  by Byte 0 (Black)
+;src\mytestrom.c:81: myHMMV(0,0,256,512, 0);					// Clear all VRAM  by Byte 0 (Black)
 	xor	a, a
 	push	af
 	inc	sp
@@ -209,33 +220,34 @@ _main::
 	ld	sp, hl
 ;src\/myheader.h:14: __endasm; 
 	di
-;src\mytestrom.c:79: myVDPready();								// wait for command completion
+;src\mytestrom.c:83: myVDPready();							// wait for command completion
 	call	_myVDPready
 ;src\/myheader.h:8: __endasm; 
 	ei
-;src\mytestrom.c:82: ObjectsInit();							// initialize logical object 
-	call	_ObjectsInit
-;src\mytestrom.c:83: SprtInit();								// initialize sprites in VRAM 
+;src\mytestrom.c:86: SprtInit();								// initialize sprites in VRAM 
 	call	_SprtInit
-;src\mytestrom.c:85: myInstISR();							// install a fake ISR to cut the overhead
+;src\mytestrom.c:87: ObjectstoVRAM(0);	
+	ld	hl, #0x0000
+	call	_ObjectstoVRAM
+;src\mytestrom.c:89: myInstISR();							// install a fake ISR to cut the overhead
 	call	_myInstISR
-;src\mytestrom.c:87: page = 0;
+;src\mytestrom.c:91: page = 0;
 	ld	hl, #_page
 	ld	(hl), #0x00
-;src\mytestrom.c:88: mySetAdjust(0,8);						// same as myVDPwrite((0-8) & 15,18);	
+;src\mytestrom.c:92: mySetAdjust(0,8);						// same as myVDPwrite((0-8) & 15,18);	
 	ld	l, #0x08
 ;	spillPairReg hl
 ;	spillPairReg hl
 	xor	a, a
 	call	_mySetAdjust
-;src\mytestrom.c:90: for (WLevelx = 0;WLevelx<0+WindowW;) {
+;src\mytestrom.c:94: for (WLevelx = 0;WLevelx<0+WindowW;) {
 	ld	hl, #0x0000
 	ld	(_WLevelx), hl
 00117$:
-;src\mytestrom.c:91: myFT_wait(1);		
+;src\mytestrom.c:95: myFT_wait(1);		
 	ld	a, #0x01
 	call	_myFT_wait
-;src\mytestrom.c:92: NewLine(WLevelx,0,WLevelx);WLevelx++;
+;src\mytestrom.c:96: NewLine(WLevelx,0,WLevelx);WLevelx++;
 	ld	a, (_WLevelx+0)
 	ld	c, a
 	ld	hl, (_WLevelx)
@@ -247,7 +259,7 @@ _main::
 	call	_NewLine
 	ld	hl, (_WLevelx)
 	inc	hl
-;src\mytestrom.c:93: NewLine(WindowW-WLevelx,0,WindowW-WLevelx);	WLevelx++;
+;src\mytestrom.c:97: NewLine(WindowW-WLevelx,0,WindowW-WLevelx);	WLevelx++;
 	ld	(_WLevelx), hl
 	ld	a, #0xf0
 	sub	a, l
@@ -269,7 +281,7 @@ _main::
 	ld	hl, (_WLevelx)
 	inc	hl
 	ld	(_WLevelx), hl
-;src\mytestrom.c:94: NewLine(WLevelx,0,WLevelx);WLevelx++;
+;src\mytestrom.c:98: NewLine(WLevelx,0,WLevelx);WLevelx++;
 	ld	a, (_WLevelx+0)
 	ld	c, a
 	ld	hl, (_WLevelx)
@@ -281,7 +293,7 @@ _main::
 	call	_NewLine
 	ld	hl, (_WLevelx)
 	inc	hl
-;src\mytestrom.c:95: NewLine(WindowW-WLevelx,0,WindowW-WLevelx);	WLevelx++;
+;src\mytestrom.c:99: NewLine(WindowW-WLevelx,0,WindowW-WLevelx);	WLevelx++;
 	ld	(_WLevelx), hl
 	ld	a, #0xf0
 	sub	a, l
@@ -302,52 +314,52 @@ _main::
 	call	_NewLine
 	ld	hl, (_WLevelx)
 	inc	hl
-;src\mytestrom.c:90: for (WLevelx = 0;WLevelx<0+WindowW;) {
+;src\mytestrom.c:94: for (WLevelx = 0;WLevelx<0+WindowW;) {
 	ld	(_WLevelx), hl
 	ld	de, #0x00f0
 	cp	a, a
 	sbc	hl, de
 	jr	C, 00117$
-;src\mytestrom.c:98: WLevelx = 0;	
+;src\mytestrom.c:102: WLevelx = 0;	
 	ld	hl, #0x0000
 	ld	(_WLevelx), hl
-;src\mytestrom.c:100: MyBorder.ny = WindowH;
+;src\mytestrom.c:104: MyBorder.ny = WindowH;
 	ld	l, #0xb0
 	ld	((_MyBorder + 10)), hl
-;src\mytestrom.c:101: MyBorder.col = 0;
+;src\mytestrom.c:105: MyBorder.col = 0;
 	ld	hl, #(_MyBorder + 12)
 	ld	(hl), #0x00
-;src\mytestrom.c:102: MyBorder.param = 0;
+;src\mytestrom.c:106: MyBorder.param = 0;
 	ld	hl, #(_MyBorder + 13)
 	ld	(hl), #0x00
-;src\mytestrom.c:103: MyBorder.cmd = opHMMV;
+;src\mytestrom.c:107: MyBorder.cmd = opHMMV;
 	ld	hl, #(_MyBorder + 14)
 	ld	(hl), #0xc0
-;src\mytestrom.c:105: MyCommand.ny = WindowH;
+;src\mytestrom.c:109: MyCommand.ny = WindowH;
 	ld	hl, #0x00b0
 	ld	((_MyCommand + 10)), hl
-;src\mytestrom.c:106: MyCommand.col = 0;
+;src\mytestrom.c:110: MyCommand.col = 0;
 	ld	hl, #(_MyCommand + 12)
 	ld	(hl), #0x00
-;src\mytestrom.c:107: MyCommand.param = 0;
+;src\mytestrom.c:111: MyCommand.param = 0;
 	ld	hl, #(_MyCommand + 13)
 	ld	(hl), #0x00
-;src\mytestrom.c:108: MyCommand.cmd = opHMMM;
+;src\mytestrom.c:112: MyCommand.cmd = opHMMM;
 	ld	hl, #(_MyCommand + 14)
 	ld	(hl), #0xd0
-;src\mytestrom.c:111: while (myCheckkbd(7)==0xFF)
+;src\mytestrom.c:115: while (myCheckkbd(7)==0xFF)
 00112$:
 	ld	a, #0x07
 	call	_myCheckkbd
 	inc	a
 	jp	NZ,00114$
-;src\mytestrom.c:113: WaitLineInt();			// wait for line 176-16
+;src\mytestrom.c:117: WaitLineInt();			// wait for line 176-16
 	call	_WaitLineInt
-;src\mytestrom.c:114: cursat^=1;				// swap sat 0 and sat 1
+;src\mytestrom.c:118: cursat^=1;				// swap sat 0 and sat 1
 	ld	a, (_cursat+0)
 	xor	a, #0x01
 	ld	(_cursat+0), a
-;src\mytestrom.c:116: if ((myCheckkbd(8)==0x7F) && (WLevelx<16*(LevelW-15)))  { 
+;src\mytestrom.c:120: if ((myCheckkbd(8)==0x7F) && (WLevelx<16*(LevelW-15)))  { 
 	ld	a, #0x08
 	call	_myCheckkbd
 	sub	a, #0x7f
@@ -373,19 +385,19 @@ _main::
 	xor	a, #0x80
 00170$:
 	jp	P, 00109$
-;src\mytestrom.c:117: WLevelx++;
+;src\mytestrom.c:121: WLevelx++;
 	ld	hl, (_WLevelx)
 	inc	hl
-;src\mytestrom.c:118: ObjectstoVRAM(WLevelx);			
+;src\mytestrom.c:122: ObjectstoVRAM(WLevelx);			
 	ld	(_WLevelx), hl
 	call	_ObjectstoVRAM
-;src\mytestrom.c:119: ScrollRight(WLevelx & 15);
+;src\mytestrom.c:123: ScrollRight(WLevelx & 15);
 	ld	a, (_WLevelx+0)
 	and	a, #0x0f
 	call	_ScrollRight
 	jp	00112$
 00109$:
-;src\mytestrom.c:121: else if ((myCheckkbd(8)==0xEF) && (WLevelx>0)) { 
+;src\mytestrom.c:125: else if ((myCheckkbd(8)==0xEF) && (WLevelx>0)) { 
 	ld	a, #0x08
 	call	_myCheckkbd
 	sub	a, #0xef
@@ -398,42 +410,42 @@ _main::
 	xor	a, #0x80
 00173$:
 	jp	P, 00105$
-;src\mytestrom.c:122: WLevelx--;
+;src\mytestrom.c:126: WLevelx--;
 	ld	hl, (_WLevelx)
 	dec	hl
-;src\mytestrom.c:123: ObjectstoVRAM(WLevelx);			
+;src\mytestrom.c:127: ObjectstoVRAM(WLevelx);			
 	ld	(_WLevelx), hl
 	call	_ObjectstoVRAM
-;src\mytestrom.c:124: ScrollLeft(WLevelx & 15);
+;src\mytestrom.c:128: ScrollLeft(WLevelx & 15);
 	ld	a, (_WLevelx+0)
 	and	a, #0x0f
 	call	_ScrollLeft
 	jp	00112$
 00105$:
-;src\mytestrom.c:127: ObjectstoVRAM(WLevelx);						
+;src\mytestrom.c:131: ObjectstoVRAM(WLevelx);						
 	ld	hl, (_WLevelx)
 	call	_ObjectstoVRAM
 	jp	00112$
 00114$:
-;src\mytestrom.c:131: myISRrestore();
+;src\mytestrom.c:135: myISRrestore();
 	call	_myISRrestore
-;src\mytestrom.c:132: chgmod(0);
+;src\mytestrom.c:136: chgmod(0);
 	xor	a, a
 	call	_chgmod
-;src\mytestrom.c:133: Reboot(0);
+;src\mytestrom.c:137: Reboot(0);
 	rst	#0
-;src\mytestrom.c:134: }
+;src\mytestrom.c:138: }
 	ret
 ___str_0:
 	.ascii "msx 1 "
 	.db 0x00
-;src\mytestrom.c:136: void ScrollRight(char step) __sdcccall(1) 
+;src\mytestrom.c:140: void ScrollRight(char step) __sdcccall(1) 
 ;	---------------------------------
 ; Function ScrollRight
 ; ---------------------------------
 _ScrollRight::
 	ld	c, a
-;src\mytestrom.c:139: myVDPwrite((step-8) & 15,18);			
+;src\mytestrom.c:143: myVDPwrite((step-8) & 15,18);			
 	ld	b, c
 	ld	a, b
 	add	a, #0xf8
@@ -446,15 +458,15 @@ _ScrollRight::
 	ld	a, e
 	call	_myVDPwrite
 	pop	bc
-;src\mytestrom.c:140: switch (step) {
+;src\mytestrom.c:144: switch (step) {
 	ld	a, c
 	or	a, a
 	jr	NZ, 00102$
-;src\mytestrom.c:142: page ^=1;							// case 0
+;src\mytestrom.c:146: page ^=1;							// case 0
 	ld	a, (_page+0)
 	xor	a, #0x01
 	ld	(_page+0), a
-;src\mytestrom.c:143: SetDisplayPage(page);
+;src\mytestrom.c:147: SetDisplayPage(page);
 	push	bc
 	ld	a, (_page+0)
 	ld	l, a
@@ -462,23 +474,23 @@ _ScrollRight::
 ;	spillPairReg hl
 	call	_SetDisplayPage
 	pop	bc
-;src\mytestrom.c:144: MyBorder.dx = 240;
+;src\mytestrom.c:148: MyBorder.dx = 240;
 	ld	hl, #0x00f0
 	ld	((_MyBorder + 4)), hl
-;src\mytestrom.c:145: MyBorder.nx = 15;
+;src\mytestrom.c:149: MyBorder.nx = 15;
 	ld	l, #0x0f
 	ld	((_MyBorder + 8)), hl
-;src\mytestrom.c:146: MyBorder.dy = 256*page;
+;src\mytestrom.c:150: MyBorder.dy = 256*page;
 	ld	a, (_page+0)
 	ld	d, a
 	ld	e, #0x00
 	ld	((_MyBorder + 6)), de
-;src\mytestrom.c:147: myfVDP(&MyBorder);
+;src\mytestrom.c:151: myfVDP(&MyBorder);
 	push	bc
 	ld	hl, #_MyBorder
 	call	_myfVDP
 	pop	bc
-;src\mytestrom.c:148: BorderLinesR(WindowW-1,page, WLevelx+WindowW-1);		
+;src\mytestrom.c:152: BorderLinesR(WindowW-1,page, WLevelx+WindowW-1);		
 	ld	hl, (_WLevelx)
 	ld	de, #0x00ef
 	add	hl, de
@@ -491,11 +503,11 @@ _ScrollRight::
 	ld	a, #0xef
 	call	_BorderLinesR
 	pop	bc
-;src\mytestrom.c:149: break;
+;src\mytestrom.c:153: break;
 	jp	00103$
-;src\mytestrom.c:150: default:								// case 1-15
+;src\mytestrom.c:154: default:								// case 1-15
 00102$:
-;src\mytestrom.c:151: MyCommand.sx = 16*step;
+;src\mytestrom.c:155: MyCommand.sx = 16*step;
 	ld	e, c
 	ld	d, #0x00
 	ex	de, hl
@@ -505,7 +517,7 @@ _ScrollRight::
 	add	hl, hl
 	ex	de, hl
 	ld	(_MyCommand), de
-;src\mytestrom.c:152: MyCommand.dx = MyCommand.sx - 16;;
+;src\mytestrom.c:156: MyCommand.dx = MyCommand.sx - 16;;
 	ld	hl, (#_MyCommand + 0)
 	ld	de, #0xfff0
 	add	hl, de
@@ -513,26 +525,26 @@ _ScrollRight::
 	ld	a,h
 	ld	d,a
 	ld	((_MyCommand + 4)), de
-;src\mytestrom.c:153: MyCommand.sy = 256*page;
+;src\mytestrom.c:157: MyCommand.sy = 256*page;
 	ld	a, (_page+0)
 	ld	d, a
 	ld	e, #0x00
 	ld	((_MyCommand + 2)), de
-;src\mytestrom.c:154: MyCommand.dy = MyCommand.sy ^ 256;
+;src\mytestrom.c:158: MyCommand.dy = MyCommand.sy ^ 256;
 	ld	de, (#(_MyCommand + 2) + 0)
 	ld	a, d
 	xor	a, #0x01
 	ld	d, a
 	ld	((_MyCommand + 6)), de
-;src\mytestrom.c:155: MyCommand.nx = 16;
+;src\mytestrom.c:159: MyCommand.nx = 16;
 	ld	hl, #0x0010
 	ld	((_MyCommand + 8)), hl
-;src\mytestrom.c:156: myfVDP(&MyCommand);		
+;src\mytestrom.c:160: myfVDP(&MyCommand);		
 	push	bc
 	ld	hl, #_MyCommand
 	call	_myfVDP
 	pop	bc
-;src\mytestrom.c:157: BorderLinesR(step+WindowW-1,page,WLevelx+WindowW-1);
+;src\mytestrom.c:161: BorderLinesR(step+WindowW-1,page,WLevelx+WindowW-1);
 	ld	hl, (_WLevelx)
 	ld	de, #0x00ef
 	add	hl, de
@@ -548,9 +560,9 @@ _ScrollRight::
 	ld	a, e
 	call	_BorderLinesR
 	pop	bc
-;src\mytestrom.c:159: }
+;src\mytestrom.c:163: }
 00103$:
-;src\mytestrom.c:160: if (step==15) PatchPlotOneTile(step+WindowW-1-16,page^1,WLevelx+WindowW-1);		
+;src\mytestrom.c:164: if (step==15) PatchPlotOneTile(step+WindowW-1-16,page^1,WLevelx+WindowW-1);		
 	ld	a, c
 	sub	a, #0x0f
 	ret	NZ
@@ -569,14 +581,14 @@ _ScrollRight::
 ;	spillPairReg hl
 	ld	a, b
 	call	_PatchPlotOneTile
-;src\mytestrom.c:161: }
+;src\mytestrom.c:165: }
 	ret
-;src\mytestrom.c:163: void ScrollLeft(char step) __sdcccall(1)
+;src\mytestrom.c:167: void ScrollLeft(char step) __sdcccall(1)
 ;	---------------------------------
 ; Function ScrollLeft
 ; ---------------------------------
 _ScrollLeft::
-;src\mytestrom.c:166: myVDPwrite((step-8) & 15,18);	
+;src\mytestrom.c:170: myVDPwrite((step-8) & 15,18);	
 	ld	c, a
 	add	a, #0xf8
 	and	a, #0x0f
@@ -588,15 +600,15 @@ _ScrollLeft::
 	ld	a, b
 	call	_myVDPwrite
 	pop	bc
-;src\mytestrom.c:167: switch (step) {
+;src\mytestrom.c:171: switch (step) {
 	ld	a, c
 	sub	a, #0x0f
 	jr	NZ, 00102$
-;src\mytestrom.c:169: page ^=1;					
+;src\mytestrom.c:173: page ^=1;					
 	ld	a, (_page+0)
 	xor	a, #0x01
 	ld	(_page+0), a
-;src\mytestrom.c:170: SetDisplayPage(page);				// case 15
+;src\mytestrom.c:174: SetDisplayPage(page);				// case 15
 	push	bc
 	ld	a, (_page+0)
 	ld	l, a
@@ -604,24 +616,24 @@ _ScrollLeft::
 ;	spillPairReg hl
 	call	_SetDisplayPage
 	pop	bc
-;src\mytestrom.c:171: MyBorder.dx = 0;	
+;src\mytestrom.c:175: MyBorder.dx = 0;	
 	ld	hl, #0x0000
 	ld	((_MyBorder + 4)), hl
-;src\mytestrom.c:172: MyBorder.nx = 15;
+;src\mytestrom.c:176: MyBorder.nx = 15;
 	ld	l, #0x0f
 	ld	((_MyBorder + 8)), hl
-;src\mytestrom.c:173: MyBorder.dy = 256*page;
+;src\mytestrom.c:177: MyBorder.dy = 256*page;
 	ld	a, (_page+0)
 	ld	b, #0x00
 	ld	d, a
 	ld	e, #0x00
 	ld	((_MyBorder + 6)), de
-;src\mytestrom.c:174: myfVDP(&MyBorder);
+;src\mytestrom.c:178: myfVDP(&MyBorder);
 	push	bc
 	ld	hl, #_MyBorder
 	call	_myfVDP
 	pop	bc
-;src\mytestrom.c:175: BorderLinesL(step,page,WLevelx);		
+;src\mytestrom.c:179: BorderLinesL(step,page,WLevelx);		
 	push	bc
 	ld	hl, (_WLevelx)
 	push	hl
@@ -632,11 +644,11 @@ _ScrollLeft::
 	ld	a, c
 	call	_BorderLinesL
 	pop	bc
-;src\mytestrom.c:176: break;				
+;src\mytestrom.c:180: break;				
 	jp	00103$
-;src\mytestrom.c:177: default:								// case 14-0
+;src\mytestrom.c:181: default:								// case 14-0
 00102$:
-;src\mytestrom.c:178: MyCommand.sx = 16*step;
+;src\mytestrom.c:182: MyCommand.sx = 16*step;
 	ld	e, c
 	ld	d, #0x00
 	ex	de, hl
@@ -646,33 +658,33 @@ _ScrollLeft::
 	add	hl, hl
 	ex	de, hl
 	ld	(_MyCommand), de
-;src\mytestrom.c:179: MyCommand.dx = MyCommand.sx + 16;
+;src\mytestrom.c:183: MyCommand.dx = MyCommand.sx + 16;
 	ld	de, (#_MyCommand + 0)
 	ld	hl, #0x0010
 	add	hl, de
 	ex	de, hl
 	ld	((_MyCommand + 4)), de
-;src\mytestrom.c:180: MyCommand.sy = 256*page;
+;src\mytestrom.c:184: MyCommand.sy = 256*page;
 	ld	a, (_page+0)
 	ld	b, #0x00
 	ld	d, a
 	ld	e, #0x00
 	ld	((_MyCommand + 2)), de
-;src\mytestrom.c:181: MyCommand.dy = MyCommand.sy ^ 256;		
+;src\mytestrom.c:185: MyCommand.dy = MyCommand.sy ^ 256;		
 	ld	de, (#(_MyCommand + 2) + 0)
 	ld	a, d
 	xor	a, #0x01
 	ld	d, a
 	ld	((_MyCommand + 6)), de
-;src\mytestrom.c:182: MyCommand.nx = 16;						
+;src\mytestrom.c:186: MyCommand.nx = 16;						
 	ld	hl, #0x0010
 	ld	((_MyCommand + 8)), hl
-;src\mytestrom.c:183: myfVDP(&MyCommand);					
+;src\mytestrom.c:187: myfVDP(&MyCommand);					
 	push	bc
 	ld	hl, #_MyCommand
 	call	_myfVDP
 	pop	bc
-;src\mytestrom.c:184: BorderLinesL(step,page,WLevelx);			
+;src\mytestrom.c:188: BorderLinesL(step,page,WLevelx);			
 	push	bc
 	ld	hl, (_WLevelx)
 	push	hl
@@ -683,9 +695,9 @@ _ScrollLeft::
 	ld	a, c
 	call	_BorderLinesL
 	pop	bc
-;src\mytestrom.c:186: }
+;src\mytestrom.c:190: }
 00103$:
-;src\mytestrom.c:187: if (step==0) PatchPlotOneTile(16,page^1,WLevelx);				
+;src\mytestrom.c:191: if (step==0) PatchPlotOneTile(16,page^1,WLevelx);				
 	ld	a, c
 	or	a, a
 	ret	NZ
@@ -699,14 +711,14 @@ _ScrollLeft::
 ;	spillPairReg hl
 	ld	a, #0x10
 	call	_PatchPlotOneTile
-;src\mytestrom.c:188: }
+;src\mytestrom.c:192: }
 	ret
-;src\mytestrom.c:208: void PlotOneColumnTile(void) __sdcccall(1) 
+;src\mytestrom.c:198: void PlotOneColumnTile(void) __sdcccall(1) 
 ;	---------------------------------
 ; Function PlotOneColumnTile
 ; ---------------------------------
 _PlotOneColumnTile::
-;src\mytestrom.c:240: __endasm;
+;src\mytestrom.c:230: __endasm;
 	exx
 	ld	hl,(_p)
 	ld	a,(hl)
@@ -734,14 +746,14 @@ _PlotOneColumnTile::
 	outi	; write data
 	exx
 	.endm
-;src\mytestrom.c:241: }
+;src\mytestrom.c:231: }
 	ret
-;src\mytestrom.c:243: void PlotOneColumnTileAndMask(void) __sdcccall(1) 
+;src\mytestrom.c:233: void PlotOneColumnTileAndMask(void) __sdcccall(1) 
 ;	---------------------------------
 ; Function PlotOneColumnTileAndMask
 ; ---------------------------------
 _PlotOneColumnTileAndMask::
-;src\mytestrom.c:279: __endasm;
+;src\mytestrom.c:269: __endasm;
 	exx
 	ld	hl,(_p)
 	ld	a,(hl)
@@ -773,14 +785,14 @@ _PlotOneColumnTileAndMask::
 	xor	a,a ; write border
 	out	(#0x98),a
 	.endm
-;src\mytestrom.c:280: }
+;src\mytestrom.c:270: }
 	ret
-;src\mytestrom.c:282: void BorderLinesL(unsigned char ScrnX,char page, int MapX) __sdcccall(1) __naked
+;src\mytestrom.c:272: void BorderLinesL(unsigned char ScrnX,char page, int MapX) __sdcccall(1) __naked
 ;	---------------------------------
 ; Function BorderLinesL
 ; ---------------------------------
 _BorderLinesL::
-;src\mytestrom.c:386: __endasm;
+;src\mytestrom.c:376: __endasm;
 	pop	bc ; get ret address
 	pop	de ; de = MapX
 	push	bc ; save ret address
@@ -856,13 +868,13 @@ _BorderLinesL::
 	call	_PlotOneColumnTileAndMask
 	ei
 	ret
-;src\mytestrom.c:387: }
-;src\mytestrom.c:389: void BorderLinesR(unsigned char ScrnX,char page, int MapX) __sdcccall(1) __naked
+;src\mytestrom.c:377: }
+;src\mytestrom.c:379: void BorderLinesR(unsigned char ScrnX,char page, int MapX) __sdcccall(1) __naked
 ;	---------------------------------
 ; Function BorderLinesR
 ; ---------------------------------
 _BorderLinesR::
-;src\mytestrom.c:493: __endasm;
+;src\mytestrom.c:483: __endasm;
 	pop	bc ; get ret address
 	pop	de ; DE = MapX+240U
 	push	bc ; save ret address
@@ -938,13 +950,13 @@ _BorderLinesR::
 	call	_PlotOneColumnTileAndMask
 	ei
 	ret
-;src\mytestrom.c:494: }
-;src\mytestrom.c:496: void NewLine(unsigned char ScrnX,char page, int MapX) __sdcccall(1) __naked
+;src\mytestrom.c:484: }
+;src\mytestrom.c:486: void NewLine(unsigned char ScrnX,char page, int MapX) __sdcccall(1) __naked
 ;	---------------------------------
 ; Function NewLine
 ; ---------------------------------
 _NewLine::
-;src\mytestrom.c:605: __endasm;
+;src\mytestrom.c:595: __endasm;
 	pop	bc ; get ret address
 	pop	de ; de = MapX
 	push	bc ; save ret address
@@ -1018,13 +1030,13 @@ _NewLine::
 	call	_PlotOneColumnTile
 	ei
 	ret
-;src\mytestrom.c:606: }
-;src\mytestrom.c:608: void PatchPlotOneTile(unsigned char ScrnX,char page, int MapX) __sdcccall(1) __naked
+;src\mytestrom.c:596: }
+;src\mytestrom.c:598: void PatchPlotOneTile(unsigned char ScrnX,char page, int MapX) __sdcccall(1) __naked
 ;	---------------------------------
 ; Function PatchPlotOneTile
 ; ---------------------------------
 _PatchPlotOneTile::
-;src\mytestrom.c:691: __endasm;
+;src\mytestrom.c:681: __endasm;
 	pop	bc ; get ret address
 	pop	de ; DE = MapX
 	push	bc ; save ret address
@@ -1074,13 +1086,13 @@ _PatchPlotOneTile::
 	call	_PlotOneColumnTile ; 1 tile
 	ei
 	ret
-;src\mytestrom.c:692: }
-;src\mytestrom.c:694: void 	myVDPwrite(char data, char vdpreg) __sdcccall(1) __naked
+;src\mytestrom.c:682: }
+;src\mytestrom.c:684: void 	myVDPwrite(char data, char vdpreg) __sdcccall(1) __naked
 ;	---------------------------------
 ; Function myVDPwrite
 ; ---------------------------------
 _myVDPwrite::
-;src\mytestrom.c:706: __endasm;
+;src\mytestrom.c:696: __endasm;
 	di
 	out	(#0x99),a
 	ld	a,#128
@@ -1088,13 +1100,13 @@ _myVDPwrite::
 	out	(#0x99),a ;R#A := L
 	ei
 	ret
-;src\mytestrom.c:708: }	
-;src\mytestrom.c:731: void  	myfVDP(void *Address)  __sdcccall(1)  __naked
+;src\mytestrom.c:698: }	
+;src\mytestrom.c:721: void  	myfVDP(void *Address)  __sdcccall(1)  __naked
 ;	---------------------------------
 ; Function myfVDP
 ; ---------------------------------
 _myfVDP::
-;src\mytestrom.c:763: __endasm;
+;src\mytestrom.c:753: __endasm;
 	di
 	ld	a,#32 ; Start with Reg 32
 	out	(#0x99),a
@@ -1118,13 +1130,13 @@ _myfVDP::
 	out	(#0x99),a
 	ei
 	ret
-;src\mytestrom.c:764: }
-;src\mytestrom.c:816: void mySetAdjust(signed char x, signed char y) __sdcccall(1)
+;src\mytestrom.c:754: }
+;src\mytestrom.c:806: void mySetAdjust(signed char x, signed char y) __sdcccall(1)
 ;	---------------------------------
 ; Function mySetAdjust
 ; ---------------------------------
 _mySetAdjust::
-;src\mytestrom.c:818: unsigned char value = ((x-8) & 15) | (((y-8) & 15)<<4);
+;src\mytestrom.c:808: unsigned char value = ((x-8) & 15) | (((y-8) & 15)<<4);
 	add	a, #0xf8
 	and	a, #0x0f
 	ld	c, a
@@ -1137,35 +1149,35 @@ _mySetAdjust::
 	add	a, a
 	or	a, c
 	ld	c, a
-;src\mytestrom.c:819: RG18SA = value;			// Reg18 Save
+;src\mytestrom.c:809: RG18SA = value;			// Reg18 Save
 	ld	iy, #_RG18SA
 	ld	0 (iy), c
-;src\mytestrom.c:820: myVDPwrite(value,18);
+;src\mytestrom.c:810: myVDPwrite(value,18);
 	ld	l, #0x12
 ;	spillPairReg hl
 ;	spillPairReg hl
 	ld	a, c
-;src\mytestrom.c:821: }
+;src\mytestrom.c:811: }
 	jp	_myVDPwrite
-;src\mytestrom.c:828: void myFT_wait(unsigned char cicles) __sdcccall(1) __naked {
+;src\mytestrom.c:818: void myFT_wait(unsigned char cicles) __sdcccall(1) __naked {
 ;	---------------------------------
 ; Function myFT_wait
 ; ---------------------------------
 _myFT_wait::
-;src\mytestrom.c:851: __endasm;
+;src\mytestrom.c:841: __endasm;
 	or	a, a
 	00004$:
 	ret	Z
 	halt
 	dec	a
 	jp	00004$
-;src\mytestrom.c:852: }
-;src\mytestrom.c:854: void WaitLineInt(void) __sdcccall(1) __naked {
+;src\mytestrom.c:842: }
+;src\mytestrom.c:844: void WaitLineInt(void) __sdcccall(1) __naked {
 ;	---------------------------------
 ; Function WaitLineInt
 ; ---------------------------------
 _WaitLineInt::
-;src\mytestrom.c:884: __endasm;
+;src\mytestrom.c:874: __endasm;
 	di
 	ld	a,#1 ; set Status Register #1 for reading
 	out	(#0x99),a
@@ -1181,21 +1193,21 @@ _WaitLineInt::
 	out	(#0x99),a
 	ei
 	ret
-;src\mytestrom.c:885: }
-;src\mytestrom.c:917: void FT_errorHandler(char n, char *name) __sdcccall(1) 
+;src\mytestrom.c:875: }
+;src\mytestrom.c:907: void FT_errorHandler(char n, char *name) __sdcccall(1) 
 ;	---------------------------------
 ; Function FT_errorHandler
 ; ---------------------------------
 _FT_errorHandler::
 	ld	c, a
-;src\mytestrom.c:924: chgmod(0);
+;src\mytestrom.c:914: chgmod(0);
 	push	bc
 	push	de
 	xor	a, a
 	call	_chgmod
 	pop	de
 	pop	bc
-;src\mytestrom.c:926: switch (n)
+;src\mytestrom.c:916: switch (n)
 	ld	a, c
 	dec	a
 	jr	Z, 00101$
@@ -1209,52 +1221,52 @@ _FT_errorHandler::
 	sub	a, #0x04
 	jr	Z, 00104$
 	jp	00105$
-;src\mytestrom.c:928: case 1:
+;src\mytestrom.c:918: case 1:
 00101$:
-;src\mytestrom.c:929: Print("\n\rFAILED: fcb_open(): ");
+;src\mytestrom.c:919: Print("\n\rFAILED: fcb_open(): ");
 	push	de
 	ld	hl, #___str_1
 	call	_Print
 	pop	de
-;src\mytestrom.c:930: Print(name);
+;src\mytestrom.c:920: Print(name);
 	ex	de, hl
 	call	_Print
-;src\mytestrom.c:931: break;
+;src\mytestrom.c:921: break;
 	jp	00105$
-;src\mytestrom.c:933: case 2:
+;src\mytestrom.c:923: case 2:
 00102$:
-;src\mytestrom.c:934: Print("\n\rFAILED: fcb_close():");
+;src\mytestrom.c:924: Print("\n\rFAILED: fcb_close():");
 	push	de
 	ld	hl, #___str_2
 	call	_Print
 	pop	de
-;src\mytestrom.c:935: Print(name);
+;src\mytestrom.c:925: Print(name);
 	ex	de, hl
 	call	_Print
-;src\mytestrom.c:936: break;  
+;src\mytestrom.c:926: break;  
 	jp	00105$
-;src\mytestrom.c:938: case 3:
+;src\mytestrom.c:928: case 3:
 00103$:
-;src\mytestrom.c:939: Print("\n\rStop Kidding, run me on MSX2 !");
+;src\mytestrom.c:929: Print("\n\rStop Kidding, run me on MSX2 !");
 	ld	hl, #___str_3
 	call	_Print
-;src\mytestrom.c:940: break;
+;src\mytestrom.c:930: break;
 	jp	00105$
-;src\mytestrom.c:942: case 4:
+;src\mytestrom.c:932: case 4:
 00104$:
-;src\mytestrom.c:943: Print("\n\rUnespected end of file:");
+;src\mytestrom.c:933: Print("\n\rUnespected end of file:");
 	push	de
 	ld	hl, #___str_4
 	call	_Print
 	pop	de
-;src\mytestrom.c:944: Print(name);		  
+;src\mytestrom.c:934: Print(name);		  
 	ex	de, hl
 	call	_Print
-;src\mytestrom.c:946: }
+;src\mytestrom.c:936: }
 00105$:
-;src\mytestrom.c:947: Reboot(0);
+;src\mytestrom.c:937: Reboot(0);
 	rst	#0
-;src\mytestrom.c:948: }
+;src\mytestrom.c:938: }
 	ret
 ___str_1:
 	.db 0x0a
@@ -1276,7 +1288,7 @@ ___str_4:
 	.db 0x0d
 	.ascii "Unespected end of file:"
 	.db 0x00
-;src\mytestrom.c:950: void MyLoadMap(char mapnumber,unsigned char* p ) __sdcccall(1)
+;src\mytestrom.c:940: void MyLoadMap(char mapnumber,unsigned char* p ) __sdcccall(1)
 ;	---------------------------------
 ; Function MyLoadMap
 ; ---------------------------------
@@ -1292,7 +1304,7 @@ _MyLoadMap::
 ;	spillPairReg hl
 	ld	-3 (ix), e
 	ld	-2 (ix), d
-;src\mytestrom.c:952: char *q = &((char*)DataLevelMap)[2]+12*mapnumber;
+;src\mytestrom.c:942: char *q = &((char*)DataLevelMap)[2]+12*mapnumber;
 	ld	bc, #_DataLevelMap
 	ld	e, c
 	ld	d, b
@@ -1311,19 +1323,19 @@ _MyLoadMap::
 	pop	de
 	add	hl, de
 	ex	de, hl
-;src\mytestrom.c:961: __endasm;	
+;src\mytestrom.c:951: __endasm;	
 	ld	a,#b_DataLevelMap
 	ld	(#0x9000),a
 	ld	(#_curr_bank),a
 	inc	a
 	ld	(#0xb000),a
-;src\mytestrom.c:963: LevelW = ((char*)DataLevelMap)[0];
+;src\mytestrom.c:953: LevelW = ((char*)DataLevelMap)[0];
 	ld	a, (bc)
 	ld	(_LevelW+0), a
-;src\mytestrom.c:965: LevelH = 11;
+;src\mytestrom.c:955: LevelH = 11;
 	ld	hl, #_LevelH
 	ld	(hl), #0x0b
-;src\mytestrom.c:967: for (char t=0;t<LevelW;t++) {
+;src\mytestrom.c:957: for (char t=0;t<LevelW;t++) {
 	ld	c, -3 (ix)
 	ld	b, -2 (ix)
 	ld	-1 (ix), #0x00
@@ -1332,7 +1344,7 @@ _MyLoadMap::
 	ld	a, -1 (ix)
 	sub	a, (hl)
 	jr	NC, 00105$
-;src\mytestrom.c:968: memcpy(p,q,11);
+;src\mytestrom.c:958: memcpy(p,q,11);
 	inc	sp
 	inc	sp
 	push	bc
@@ -1350,29 +1362,29 @@ _MyLoadMap::
 	ldir
 	pop	bc
 	pop	de
-;src\mytestrom.c:969: p +=11;
+;src\mytestrom.c:959: p +=11;
 	ld	hl, #0x000b
 	add	hl, bc
 	ld	c, l
 	ld	b, h
-;src\mytestrom.c:970: q +=24;
+;src\mytestrom.c:960: q +=24;
 	ld	hl, #0x0018
 	add	hl, de
 	ex	de, hl
-;src\mytestrom.c:967: for (char t=0;t<LevelW;t++) {
+;src\mytestrom.c:957: for (char t=0;t<LevelW;t++) {
 	inc	-1 (ix)
 	jp	00103$
 00105$:
-;src\mytestrom.c:972: }
+;src\mytestrom.c:962: }
 	ld	sp, ix
 	pop	ix
 	ret
-;src\mytestrom.c:974: void myISR(void) __sdcccall(1) __naked
+;src\mytestrom.c:964: void myISR(void) __sdcccall(1) __naked
 ;	---------------------------------
 ; Function myISR
 ; ---------------------------------
 _myISR::
-;src\mytestrom.c:1013: __endasm;
+;src\mytestrom.c:1003: __endasm;
 	push	af
 	xor	a,a ; set Status Register #0 for reading
 	out	(#0x99),a
@@ -1391,19 +1403,19 @@ _myISR::
 	pop	af
 	ei
 	ret
-;src\mytestrom.c:1014: }
-;src\mytestrom.c:1016: void myInstISR(void) __sdcccall(1) __naked
+;src\mytestrom.c:1004: }
+;src\mytestrom.c:1006: void myInstISR(void) __sdcccall(1) __naked
 ;	---------------------------------
 ; Function myInstISR
 ; ---------------------------------
 _myInstISR::
-;src\mytestrom.c:1018: myVDPwrite(WindowH-8,19); // indagare sul glitch !!! xxx
+;src\mytestrom.c:1008: myVDPwrite(WindowH-8,19); // indagare sul glitch !!! xxx
 	ld	l, #0x13
 ;	spillPairReg hl
 ;	spillPairReg hl
 	ld	a, #0xa8
 	call	_myVDPwrite
-;src\mytestrom.c:1034: __endasm;
+;src\mytestrom.c:1024: __endasm;
 	ld	hl,#0xFD9A
 	ld	de,#_OldIsr
 	ld	bc,#3
@@ -1415,23 +1427,23 @@ _myInstISR::
 	ld	(#0xFD9A+#1),hl
 	ei
 	ret
-;src\mytestrom.c:1035: }
-;src\mytestrom.c:1037: void myISRrestore(void) __sdcccall(1) __naked
+;src\mytestrom.c:1025: }
+;src\mytestrom.c:1027: void myISRrestore(void) __sdcccall(1) __naked
 ;	---------------------------------
 ; Function myISRrestore
 ; ---------------------------------
 _myISRrestore::
-;src\mytestrom.c:1039: RG0SAV &= 0xEF;
+;src\mytestrom.c:1029: RG0SAV &= 0xEF;
 	ld	a, (_RG0SAV+0)
 	and	a, #0xef
 	ld	(_RG0SAV+0), a
-;src\mytestrom.c:1040: myVDPwrite(RG0SAV,0);
+;src\mytestrom.c:1030: myVDPwrite(RG0SAV,0);
 	ld	l, #0x00
 ;	spillPairReg hl
 ;	spillPairReg hl
 	ld	a, (_RG0SAV+0)
 	call	_myVDPwrite
-;src\mytestrom.c:1050: __endasm;
+;src\mytestrom.c:1040: __endasm;
 	ld	hl,#_OldIsr
 	ld	de,#0xFD9A
 	ld	bc,#3
@@ -1439,13 +1451,13 @@ _myISRrestore::
 	ldir
 	ei
 	ret
-;src\mytestrom.c:1051: }
-;src\mytestrom.c:1055: unsigned char myCheckkbd(unsigned char nrow) __sdcccall(1) __naked
+;src\mytestrom.c:1041: }
+;src\mytestrom.c:1045: unsigned char myCheckkbd(unsigned char nrow) __sdcccall(1) __naked
 ;	---------------------------------
 ; Function myCheckkbd
 ; ---------------------------------
 _myCheckkbd::
-;src\mytestrom.c:1081: __endasm;
+;src\mytestrom.c:1071: __endasm;
 ;
 ;
 ;
@@ -1467,8 +1479,8 @@ _myCheckkbd::
 	ld	l,a
 	ei
 	ret
-;src\mytestrom.c:1082: }
-;src\mytestrom.c:1093: void ObjectsInit(void) {
+;src\mytestrom.c:1072: }
+;src\mytestrom.c:1083: void ObjectsInit(void) {
 ;	---------------------------------
 ; Function ObjectsInit
 ; ---------------------------------
@@ -1477,12 +1489,11 @@ _ObjectsInit::
 	ld	ix,#0
 	add	ix,sp
 	push	af
-	dec	sp
-;src\mytestrom.c:1095: for (t=0;t<MaxObjNum;t++)
-	ld	-1 (ix), #0x00
+	push	af
+;src\mytestrom.c:1085: for (t=0;t<MaxObjNum;t++)
+	ld	c, #0x00
 00102$:
-;src\mytestrom.c:1097: object[t].x = t*LevelW*4/MaxObjNum + WindowW/2;
-	ld	c, -1 (ix)
+;src\mytestrom.c:1087: object[t].x = t*LevelW*4/MaxObjNum + WindowW/2;
 	ld	b, #0x00
 	ld	l, c
 	ld	h, b
@@ -1490,17 +1501,16 @@ _ObjectsInit::
 	add	hl, bc
 	add	hl, hl
 	add	hl, bc
-	ex	de, hl
-	ld	hl, #_object
+	ld	de, #_object
 	add	hl, de
-	ex	de, hl
-	inc	sp
-	inc	sp
-	push	de
-	push	de
+	ex	(sp), hl
+	ld	a, -4 (ix)
+	ld	-2 (ix), a
+	ld	a, -3 (ix)
+	ld	-1 (ix), a
 	ld	a, (#_LevelW + 0)
 	ld	e, a
-	ld	h, -1 (ix)
+	ld	h, c
 ;	spillPairReg hl
 ;	spillPairReg hl
 	ld	l, #0x00
@@ -1512,90 +1522,91 @@ _ObjectsInit::
 	add	hl, de
 00126$:
 	djnz	00125$
-	pop	de
 	add	hl, hl
 	add	hl, hl
-;	spillPairReg hl
-;	spillPairReg hl
-	ld	c,l
-	ld	b,h
-;	spillPairReg hl
-;	spillPairReg hl
+	ld	b, h
+	ld	e, l
+	ld	d, b
 	bit	7, b
 	jr	Z, 00106$
-	ld	hl, #0x0007
-	add	hl, bc
-00106$:
-	sra	h
-	rr	l
-	sra	h
-	rr	l
-	sra	h
-	rr	l
 	ld	a, l
-	ld	b, h
-	add	a, #0x78
-	ld	c, a
-	jr	NC, 00127$
-	inc	b
-00127$:
-	pop	hl
-	push	hl
-	ld	(hl), c
+	add	a, #0x07
+	ld	e, a
+	ld	a, b
+	adc	a, #0x00
+	ld	d, a
+00106$:
+	sra	d
+	rr	e
+	sra	d
+	rr	e
+	sra	d
+	rr	e
+	ld	hl, #0x0078
+	add	hl, de
+	ex	de, hl
+	ld	l, -2 (ix)
+	ld	h, -1 (ix)
+	ld	(hl), e
 	inc	hl
-	ld	(hl), b
-;src\mytestrom.c:1098: object[t].y = (t & 1) ? LevelH*16-32 : 0;
-	ld	l, e
+	ld	(hl), d
+;src\mytestrom.c:1088: object[t].y = (t & 1) ? LevelH*16-32 : 0;
+	ld	a, -4 (ix)
+	add	a, #0x02
+	ld	e, a
+	ld	a, -3 (ix)
+	adc	a, #0x00
+	ld	h, a
 ;	spillPairReg hl
 ;	spillPairReg hl
-	ld	h, d
-;	spillPairReg hl
-;	spillPairReg hl
-	inc	hl
-	inc	hl
-	bit	0, -1 (ix)
+	bit	0, c
 	jr	Z, 00107$
 	ld	a, (_LevelH+0)
-	ld	c, #0x00
+	ld	b, #0x00
 	add	a, a
-	rl	c
+	rl	b
 	add	a, a
-	rl	c
+	rl	b
 	add	a, a
-	rl	c
+	rl	b
 	add	a, a
-	rl	c
+	rl	b
 	add	a, #0xe0
-	ld	b, a
-	ld	a, c
+	ld	d, a
+	ld	a, b
 	adc	a, #0xff
+	ld	b, a
 	jp	00108$
 00107$:
-	xor	a, a
-	ld	b, a
+	ld	d, #0x00
+	ld	b, d
 00108$:
-	ld	(hl), b
+	ld	l, e
+	ld	(hl), d
 	inc	hl
-	ld	(hl), a
-;src\mytestrom.c:1099: object[t].frame = t;
-	ld	hl, #0x0005
+	ld	(hl), b
+;src\mytestrom.c:1089: object[t].frame = t;
+	pop	hl
+	push	hl
+	ld	de, #0x0005
 	add	hl, de
-	ld	a, -1 (ix)
-	ld	(hl), a
-;src\mytestrom.c:1100: object[t].status = 255;		// 0 is for inactive
-	ld	hl, #0x0006
+	ld	(hl), c
+;src\mytestrom.c:1090: object[t].status = 255;		// 0 is for inactive
+	pop	hl
+	push	hl
+	ld	de, #0x0006
 	add	hl, de
 	ld	(hl), #0xff
-;src\mytestrom.c:1095: for (t=0;t<MaxObjNum;t++)
-	inc	-1 (ix)
-	ld	a, -1 (ix)
+;src\mytestrom.c:1085: for (t=0;t<MaxObjNum;t++)
+	inc	c
+	ld	a, c
 	sub	a, #0x08
 	jp	C, 00102$
-;src\mytestrom.c:1102: }
+;src\mytestrom.c:1092: }
 	ld	sp, ix
 	pop	ix
 	ret
-;src\mytestrom.c:1110: void ObjectstoVRAM(int MapX) __sdcccall(1)
+;src\mytestrom.c:1100: void ObjectstoVRAM(int MapX) __sdcccall(1)
 ;	---------------------------------
 ; Function ObjectstoVRAM
 ; ---------------------------------
@@ -1608,41 +1619,43 @@ _ObjectstoVRAM::
 	dec	sp
 	ld	-3 (ix), l
 	ld	-2 (ix), h
-;src\mytestrom.c:1119: if (cursat==0) {
+;src\mytestrom.c:1109: if (cursat==0) {
 	ld	a, (_cursat+0)
 	or	a, a
 	jr	NZ, 00102$
-;src\mytestrom.c:1120: SetVramW(0,0xFA00);	// sat 0
+;src\mytestrom.c:1110: SetVramW(0,0xFA00);	// sat 0
 	ld	de, #0xfa00
 	xor	a, a
 	call	_SetVramW
-;src\mytestrom.c:1121: q = &object[MaxObjNum-1];
+;src\mytestrom.c:1111: q = &object[MaxObjNum-1];
 	ld	de, #_object+49
 	jp	00122$
 00102$:
-;src\mytestrom.c:1124: SetVramW(1,0xFA00);	// sat 1		
+;src\mytestrom.c:1114: SetVramW(1,0xFA00);	// sat 1		
 	ld	de, #0xfa00
 	ld	a, #0x01
 	call	_SetVramW
-;src\mytestrom.c:1125: q = &object[0];		
+;src\mytestrom.c:1115: q = &object[0];		
 	ld	de, #_object
-;src\mytestrom.c:1129: for (t=0; t<MaxObjNum; t++) 
+;src\mytestrom.c:1119: for (t=0; t<MaxObjNum; t++) 
 00122$:
 	ld	-1 (ix), #0x00
 00113$:
-;src\mytestrom.c:1132: u = q->x-(((unsigned int) MapX) & 0xFFF0);
+;src\mytestrom.c:1122: u = q->x-(((unsigned int) MapX) & 0xFFF0);
 	ld	l, e
 	ld	h, d
 	ld	c, (hl)
 	inc	hl
 	ld	b, (hl)
+;	spillPairReg hl
+;	spillPairReg hl
+;	spillPairReg hl
+;	spillPairReg hl
 	ld	a, -3 (ix)
-	ld	l, -2 (ix)
-;	spillPairReg hl
-;	spillPairReg hl
+	ld	h, -2 (ix)
 	and	a, #0xf0
 	ld	-5 (ix), a
-	ld	-4 (ix), l
+	ld	-4 (ix), h
 	ld	hl, #_u
 	ld	a, c
 	sub	a, -5 (ix)
@@ -1651,17 +1664,17 @@ _ObjectstoVRAM::
 	sbc	a, -4 (ix)
 	inc	hl
 	ld	(hl), a
-;src\mytestrom.c:1133: y = q->y;
+;src\mytestrom.c:1123: y = q->y;
 	ld	c, e
 	ld	b, d
 	inc	bc
 	inc	bc
 	ld	a, (bc)
 	ld	(_y+0), a
-;src\mytestrom.c:1134: x = u;
+;src\mytestrom.c:1124: x = u;
 	ld	a, (_u+0)
 	ld	(_x+0), a
-;src\mytestrom.c:1135: v = q->frame<<4;
+;src\mytestrom.c:1125: v = q->frame<<4;
 	push	de
 	pop	iy
 	ld	a, 5 (iy)
@@ -1670,7 +1683,7 @@ _ObjectstoVRAM::
 	add	a, a
 	add	a, a
 	ld	(_v+0), a
-;src\mytestrom.c:1137: if (q->status && (q->x - MapX >= 0) && (q->x - MapX < WindowW-16)) 
+;src\mytestrom.c:1127: if (q->status && (q->x - MapX >= 0) && (q->x - MapX < WindowW-16)) 
 	push	de
 	pop	iy
 	ld	a, 6 (iy)
@@ -1694,7 +1707,7 @@ _ObjectstoVRAM::
 	ld	a, b
 	sbc	a, #0x00
 	jp	NC, 00105$
-;src\mytestrom.c:1169: __endasm;
+;src\mytestrom.c:1159: __endasm;
 	ld	c,#0x98
 	.rept	2
 	ld	hl,#_y
@@ -1725,18 +1738,18 @@ _ObjectstoVRAM::
 	out	(#0x98),a
 	jp	00106$
 00105$:
-;src\mytestrom.c:1178: __endasm;
+;src\mytestrom.c:1168: __endasm;
 	ld	a,#217
 	.rept	16
 	out	(#0x98),a
 	nop
 	.endm
 00106$:
-;src\mytestrom.c:1180: if (cursat==0) {
+;src\mytestrom.c:1170: if (cursat==0) {
 	ld	a, (_cursat+0)
 	or	a, a
 	jr	NZ, 00110$
-;src\mytestrom.c:1181: q--;
+;src\mytestrom.c:1171: q--;
 	ld	a, e
 	add	a, #0xf9
 	ld	e, a
@@ -1745,21 +1758,21 @@ _ObjectstoVRAM::
 	ld	d, a
 	jp	00114$
 00110$:
-;src\mytestrom.c:1184: q++;
+;src\mytestrom.c:1174: q++;
 	ld	hl, #0x0007
 	add	hl, de
 	ex	de, hl
 00114$:
-;src\mytestrom.c:1129: for (t=0; t<MaxObjNum; t++) 
+;src\mytestrom.c:1119: for (t=0; t<MaxObjNum; t++) 
 	inc	-1 (ix)
 	ld	a, -1 (ix)
 	sub	a, #0x08
 	jp	C, 00113$
-;src\mytestrom.c:1190: }
+;src\mytestrom.c:1180: }
 	ld	sp, ix
 	pop	ix
 	ret
-;src\mytestrom.c:1194: void UpdateColor(char plane,char frame,char nsat) __sdcccall(1){
+;src\mytestrom.c:1184: void UpdateColor(char plane,char frame,char nsat) __sdcccall(1){
 ;	---------------------------------
 ; Function UpdateColor
 ; ---------------------------------
@@ -1767,37 +1780,70 @@ _UpdateColor::
 	push	ix
 	ld	ix,#0
 	add	ix,sp
-	ld	e, a
-;src\mytestrom.c:1197: SetVramW(1,0xF800+plane*16);
-	ld	d, #0x00
-	ex	de, hl
+	ld	b, a
+	ld	c, l
+;src\mytestrom.c:1187: SetVramW(1,0xF800+plane*16);
+	ld	l, b
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	h, #0x00
+;	spillPairReg hl
+;	spillPairReg hl
 	add	hl, hl
 	add	hl, hl
 	add	hl, hl
 	add	hl, hl
-	ex	de, hl
-	ld	a, d
+	ld	e, l
+	ld	a, h
 	add	a, #0xf8
 	ld	d, a
-;src\mytestrom.c:1196: if (nsat)
+;src\mytestrom.c:1186: if (nsat)
 	ld	a, 4 (ix)
 	or	a, a
 	jr	Z, 00102$
-;src\mytestrom.c:1197: SetVramW(1,0xF800+plane*16);
-	push	hl
+;src\mytestrom.c:1187: SetVramW(1,0xF800+plane*16);
 	ld	a, #0x01
 	call	_SetVramW
-	pop	hl
 	jp	00103$
 00102$:
-;src\mytestrom.c:1199: SetVramW(0,0xF800+plane*16);
-	push	hl
+;src\mytestrom.c:1189: SetVramW(0,0xF800+plane*16);
 	xor	a, a
 	call	_SetVramW
-	pop	hl
 00103$:
-;src\mytestrom.c:1201: VramWrite(((unsigned int) &sprite_colors) + frame*64,64);
-	ld	bc, #_sprite_colors
+;src\mytestrom.c:1191: VramWrite(((unsigned int) &sprite_colors) + frame*64,64);
+	ld	de, #_sprite_colors
+	ld	h, #0x00
+;	spillPairReg hl
+;	spillPairReg hl
+	ld	l, c
+	add	hl, hl
+	add	hl, hl
+	add	hl, hl
+	add	hl, hl
+	add	hl, hl
+	add	hl, hl
+	add	hl, de
+	ld	de, #0x0040
+	call	_VramWrite
+;src\mytestrom.c:1192: }
+	pop	ix
+	pop	hl
+	inc	sp
+	jp	(hl)
+;src\mytestrom.c:1194: void UpdateFrame(char plane,char frame,char nsat) __sdcccall(1){
+;	---------------------------------
+; Function UpdateFrame
+; ---------------------------------
+_UpdateFrame::
+	push	ix
+	ld	ix,#0
+	add	ix,sp
+	ld	b, a
+	ld	c, l
+;src\mytestrom.c:1197: SetVramW(0,0xF000+plane*32);
+	ld	l, b
+;	spillPairReg hl
+;	spillPairReg hl
 	ld	h, #0x00
 ;	spillPairReg hl
 ;	spillPairReg hl
@@ -1806,111 +1852,83 @@ _UpdateColor::
 	add	hl, hl
 	add	hl, hl
 	add	hl, hl
-	add	hl, hl
-	add	hl, bc
-	ld	de, #0x0040
+	ld	e, l
+;src\mytestrom.c:1196: if (nsat)
+	ld	a, 4 (ix)
+	or	a, a
+	jr	Z, 00102$
+;src\mytestrom.c:1197: SetVramW(0,0xF000+plane*32);
+	ld	a, h
+	add	a, #0xf0
+	ld	d, a
+	xor	a, a
+	call	_SetVramW
+	jp	00103$
+00102$:
+;src\mytestrom.c:1199: SetVramW(0,0xF000+32*32+plane*32);
+	ld	a, h
+	add	a, #0xf4
+	ld	d, a
+	xor	a, a
+	call	_SetVramW
+00103$:
+;src\mytestrom.c:1201: VramWrite(((unsigned int) &sprite_patterns) + frame*128,128);
+	ld	de, #_sprite_patterns
+	xor	a, a
+	rr	a
+	ld	h, c
+	rr	h
+	rra
+	ld	l, a
+;	spillPairReg hl
+;	spillPairReg hl
+	add	hl, de
+	ld	de, #0x0080
 	call	_VramWrite
 ;src\mytestrom.c:1202: }
 	pop	ix
 	pop	hl
 	inc	sp
 	jp	(hl)
-;src\mytestrom.c:1204: void UpdateFrame(char plane,char frame,char nsat) __sdcccall(1){
-;	---------------------------------
-; Function UpdateFrame
-; ---------------------------------
-_UpdateFrame::
-	push	ix
-	ld	ix,#0
-	add	ix,sp
-	ld	e, a
-;src\mytestrom.c:1207: SetVramW(0,0xF000+plane*32);
-	ld	d, #0x00
-	ex	de, hl
-	add	hl, hl
-	add	hl, hl
-	add	hl, hl
-	add	hl, hl
-	add	hl, hl
-	ex	de, hl
-;src\mytestrom.c:1206: if (nsat)
-	ld	a, 4 (ix)
-	or	a, a
-	jr	Z, 00102$
-;src\mytestrom.c:1207: SetVramW(0,0xF000+plane*32);
-	ld	a, d
-	add	a, #0xf0
-	ld	d, a
-	push	hl
-	xor	a, a
-	call	_SetVramW
-	pop	hl
-	jp	00103$
-00102$:
-;src\mytestrom.c:1209: SetVramW(0,0xF000+32*32+plane*32);
-	ld	a, d
-	add	a, #0xf4
-	ld	d, a
-	push	hl
-	xor	a, a
-	call	_SetVramW
-	pop	hl
-00103$:
-;src\mytestrom.c:1211: VramWrite(((unsigned int) &sprite_patterns) + frame*128,128);
-	ld	bc, #_sprite_patterns
-	xor	a, a
-	rr	a
-	ld	h, l
-	rr	h
-	rra
-	ld	l, a
-	add	hl, bc
-	ld	de, #0x0080
-	call	_VramWrite
-;src\mytestrom.c:1212: }
-	pop	ix
-	pop	hl
-	inc	sp
-	jp	(hl)
-;src\mytestrom.c:1267: void SprtInit(void) __sdcccall(1) 
+;src\mytestrom.c:1257: void SprtInit(void) __sdcccall(1) 
 ;	---------------------------------
 ; Function SprtInit
 ; ---------------------------------
 _SprtInit::
-;src\mytestrom.c:1271: RG1SAV |= 2;
+;src\mytestrom.c:1261: RG1SAV |= 2;
 	ld	a, (_RG1SAV+0)
 	or	a, #0x02
 	ld	(_RG1SAV+0), a
-;src\mytestrom.c:1272: myVDPwrite(RG1SAV,1);
+;src\mytestrom.c:1262: myVDPwrite(RG1SAV,1);
 	ld	l, #0x01
 ;	spillPairReg hl
 ;	spillPairReg hl
 	ld	a, (_RG1SAV+0)
 	call	_myVDPwrite
-;src\mytestrom.c:1273: RG8SAV |= 32;
+;src\mytestrom.c:1263: RG8SAV |= 32;
 	ld	a, (_RG8SAV+0)
 	or	a, #0x20
 	ld	(_RG8SAV+0), a
-;src\mytestrom.c:1274: myVDPwrite(RG8SAV,8);
+;src\mytestrom.c:1264: myVDPwrite(RG8SAV,8);
 	ld	l, #0x08
 ;	spillPairReg hl
 ;	spillPairReg hl
 	ld	a, (_RG8SAV+0)
 	call	_myVDPwrite
-;src\mytestrom.c:1284: __endasm;
+;src\mytestrom.c:1274: __endasm;
 	ld	a,#b_sprite_colors
 	ld	(#0x9000),a
 	ld	(#_curr_bank),a
 	inc	a
 	ld	(#0xb000),a
-;src\mytestrom.c:1287: SetVramW(0,0xF800);					// sat 0
+;src\mytestrom.c:1277: SetVramW(0,0xF800);					// sat 0
 	ld	de, #0xf800
 	xor	a, a
 	call	_SetVramW
-;src\mytestrom.c:1288: for (t=0; t<MaxObjNum; t++) {
+;src\mytestrom.c:1278: for (t=0; t<MaxObjNum; t++) {
 	ld	c, #0x00
 00104$:
-;src\mytestrom.c:1289: VramWrite(((unsigned int) &sprite_colors) + (MaxObjNum-1-t)*64,64);
+;src\mytestrom.c:1279: VramWrite(((unsigned int) &sprite_colors) + (MaxObjNum-1-t)*64,64);
 	ld	de, #_sprite_colors
 	ld	l, c
 ;	spillPairReg hl
@@ -1937,19 +1955,19 @@ _SprtInit::
 	ld	de, #0x0040
 	call	_VramWrite
 	pop	bc
-;src\mytestrom.c:1288: for (t=0; t<MaxObjNum; t++) {
+;src\mytestrom.c:1278: for (t=0; t<MaxObjNum; t++) {
 	inc	c
 	ld	a, c
 	sub	a, #0x08
 	jr	C, 00104$
-;src\mytestrom.c:1292: SetVramW(1,0xF800);					// sat 1
+;src\mytestrom.c:1282: SetVramW(1,0xF800);					// sat 1
 	ld	de, #0xf800
 	ld	a, #0x01
 	call	_SetVramW
-;src\mytestrom.c:1293: for (t=0; t<MaxObjNum; t++) {
+;src\mytestrom.c:1283: for (t=0; t<MaxObjNum; t++) {
 	ld	c, #0x00
 00106$:
-;src\mytestrom.c:1294: VramWrite(((unsigned int) &sprite_colors) + t*64,64);
+;src\mytestrom.c:1284: VramWrite(((unsigned int) &sprite_colors) + t*64,64);
 	ld	de, #_sprite_colors
 	ld	l, c
 ;	spillPairReg hl
@@ -1968,25 +1986,25 @@ _SprtInit::
 	ld	de, #0x0040
 	call	_VramWrite
 	pop	bc
-;src\mytestrom.c:1293: for (t=0; t<MaxObjNum; t++) {
+;src\mytestrom.c:1283: for (t=0; t<MaxObjNum; t++) {
 	inc	c
 	ld	a, c
 	sub	a, #0x08
 	jr	C, 00106$
-;src\mytestrom.c:1304: __endasm;
+;src\mytestrom.c:1294: __endasm;
 	ld	a,#b_sprite_patterns
 	ld	(#0x9000),a
 	ld	(#_curr_bank),a
 	inc	a
 	ld	(#0xb000),a
-;src\mytestrom.c:1306: SetVramW(0,0xF000);					// sprite patterns	
+;src\mytestrom.c:1296: SetVramW(0,0xF000);					// sprite patterns	
 	ld	de, #0xf000
 	xor	a, a
 	call	_SetVramW
-;src\mytestrom.c:1307: for (t=0; t<MaxObjNum; t++) {	
+;src\mytestrom.c:1297: for (t=0; t<MaxObjNum; t++) {	
 	ld	c, #0x00
 00108$:
-;src\mytestrom.c:1308: VramWrite(((unsigned int) &sprite_patterns) + t*128,128);
+;src\mytestrom.c:1298: VramWrite(((unsigned int) &sprite_patterns) + t*128,128);
 	ld	de, #_sprite_patterns
 	ld	l, c
 ;	spillPairReg hl
@@ -2007,19 +2025,19 @@ _SprtInit::
 	ld	de, #0x0080
 	call	_VramWrite
 	pop	bc
-;src\mytestrom.c:1307: for (t=0; t<MaxObjNum; t++) {	
+;src\mytestrom.c:1297: for (t=0; t<MaxObjNum; t++) {	
 	inc	c
 	ld	a, c
 	sub	a, #0x08
 	jr	C, 00108$
-;src\mytestrom.c:1310: }
+;src\mytestrom.c:1300: }
 	ret
-;src\mytestrom.c:1312: void VramWrite(unsigned int addr, unsigned int len) __sdcccall(1) __naked
+;src\mytestrom.c:1302: void VramWrite(unsigned int addr, unsigned int len) __sdcccall(1) __naked
 ;	---------------------------------
 ; Function VramWrite
 ; ---------------------------------
 _VramWrite::
-;src\mytestrom.c:1325: __endasm;		
+;src\mytestrom.c:1315: __endasm;		
 	ld	c,#0x98
 	095$:
 	outi
@@ -2028,57 +2046,109 @@ _VramWrite::
 	or	a,e
 	jr	nz,095$
 	ret
-;src\mytestrom.c:1326: }
-;src\mytestrom.c:1328: void SetVramW(char page, unsigned int addr) __sdcccall(1) __naked {
+;src\mytestrom.c:1316: }
+;src\mytestrom.c:1318: void SetVramR14( unsigned int addr) __sdcccall(1) __naked __preserves_regs(b,c,d,e,h,l,iyl,iyh) 
 ;	---------------------------------
-; Function SetVramW
+; Function SetVramR14
 ; ---------------------------------
-_SetVramW::
-;src\mytestrom.c:1353: __endasm;		
-;	Set VDP address counter to write from address ADE (17-bit)
-;	Enables the interrupts
-	ex	de,hl
-	rlc	h
-	rla
-	rlc	h
-	rla
-	srl	h
-	srl	h
+_SetVramR14::
+;src\mytestrom.c:1329: __endasm;		
+	ld	a,l
 	di
 	out	(#0x99),a
-	ld	a,#0x8E
+	ld	a,h
+	ei
 	out	(#0x99),a
+	ret
+;src\mytestrom.c:1330: }
+;src\mytestrom.c:1331: void SetVramW14( unsigned int addr) __sdcccall(1) __naked __preserves_regs(b,c,d,e,h,l,iyl,iyh) 
+;	---------------------------------
+; Function SetVramW14
+; ---------------------------------
+_SetVramW14::
+;src\mytestrom.c:1343: __endasm;		
 	ld	a,l
+	di
 	out	(#0x99),a
 	ld	a,h
 	or	a,#0x40
 	ei
 	out	(#0x99),a
-	ex	de,hl
 	ret
-;src\mytestrom.c:1354: }
-;src\mytestrom.c:1357: void chgmod(char c) __sdcccall(1) __naked {
+;src\mytestrom.c:1344: }
+;src\mytestrom.c:1345: void SetVramW(char page, unsigned int addr) __sdcccall(1) __naked __preserves_regs(b,c,h,l,iyl,iyh) 
+;	---------------------------------
+; Function SetVramW
+; ---------------------------------
+_SetVramW::
+;src\mytestrom.c:1369: __endasm;		
+;	Set VDP address counter to write from address ADE (17-bit)
+;	Enables the interrupts
+	rlc	d
+	rla
+	rlc	d
+	rla
+	srl	d
+	srl	d
+	di
+	out	(#0x99),a
+	ld	a,#0x8E
+	out	(#0x99),a
+	ld	a,e
+	out	(#0x99),a
+	ld	a,d
+	or	a,#0x40
+	ei
+	out	(#0x99),a
+	ret
+;src\mytestrom.c:1370: }
+;src\mytestrom.c:1373: void SetVramR(char page, unsigned int addr) __sdcccall(1) __naked __preserves_regs(b,c,h,l,iyl,iyh) 
+;	---------------------------------
+; Function SetVramR
+; ---------------------------------
+_SetVramR::
+;src\mytestrom.c:1396: __endasm;		
+;	Set VDP address counter to write from address ADE (17-bit)
+;	Enables the interrupts
+	rlc	d
+	rla
+	rlc	d
+	rla
+	srl	d
+	srl	d
+	di
+	out	(#0x99),a
+	ld	a,#0x8E
+	out	(#0x99),a
+	ld	a,e
+	out	(#0x99),a
+	ld	a,d ; set for reading
+	ei
+	out	(#0x99),a
+	ret
+;src\mytestrom.c:1397: }
+;src\mytestrom.c:1399: void chgmod(char c) __sdcccall(1) __naked {
 ;	---------------------------------
 ; Function chgmod
 ; ---------------------------------
 _chgmod::
-;src\mytestrom.c:1361: __endasm;
+;src\mytestrom.c:1403: __endasm;
 	jp	0x005f
-;src\mytestrom.c:1362: }
-;src\mytestrom.c:1364: void putch(char c) __sdcccall(1) __naked {
+;src\mytestrom.c:1404: }
+;src\mytestrom.c:1406: void putch(char c) __sdcccall(1) __naked {
 ;	---------------------------------
 ; Function putch
 ; ---------------------------------
 _putch::
-;src\mytestrom.c:1368: __endasm;
+;src\mytestrom.c:1410: __endasm;
 	jp	0x00a2
-;src\mytestrom.c:1369: }
-;src\mytestrom.c:1372: void	myHMMV( unsigned int DX, unsigned int DY, unsigned int NX, unsigned int NY, char COL) __sdcccall(0) __naked
+;src\mytestrom.c:1411: }
+;src\mytestrom.c:1414: void	myHMMV( unsigned int DX, unsigned int DY, unsigned int NX, unsigned int NY, char COL) __sdcccall(0) __naked
 ;	---------------------------------
 ; Function myHMMV
 ; ---------------------------------
 _myHMMV::
-;src\mytestrom.c:1435: __endasm;
+;src\mytestrom.c:1477: __endasm;
 ;****************************************************************
 ;	HMMV painting the rectangle in high speed Eric
 ;	void HMMV( unsigned int XS, unsigned int YS, unsigned int DX, unsigned int DY, char COL);
@@ -2119,13 +2189,13 @@ _myHMMV::
 	ei
 	pop	ix
 	ret
-;src\mytestrom.c:1436: }
-;src\mytestrom.c:1439: void SetDisplayPage(char n) __z88dk_fastcall
+;src\mytestrom.c:1478: }
+;src\mytestrom.c:1481: void SetDisplayPage(char n) __z88dk_fastcall
 ;	---------------------------------
 ; Function SetDisplayPage
 ; ---------------------------------
 _SetDisplayPage::
-;src\mytestrom.c:1466: __endasm;
+;src\mytestrom.c:1508: __endasm;
 ;----------------------------
 ;	void SetDisplayPage(char n)
 ;	MSX2 Show the specified VRAM Page at Screen
@@ -2147,14 +2217,14 @@ _SetDisplayPage::
 	out	(c), a ;; out VDP register number
 	ei
 	ld	(#0xFAF5),a ;; DPPAGE
-;src\mytestrom.c:1467: }
+;src\mytestrom.c:1509: }
 	ret
-;src\mytestrom.c:1472: void VDPlineSwitch(void) 
+;src\mytestrom.c:1514: void VDPlineSwitch(void) 
 ;	---------------------------------
 ; Function VDPlineSwitch
 ; ---------------------------------
 _VDPlineSwitch::
-;src\mytestrom.c:1483: __endasm;
+;src\mytestrom.c:1525: __endasm;
 	ld	a,(#_RG9SAV)
 	xor	a,#0b10000000
 	ld	(#_RG9SAV),a
@@ -2163,14 +2233,14 @@ _VDPlineSwitch::
 	ld	c, #0x99 ;; VDP port #1 (unsupport "MSX1 adapter")
 	out	(c), b ;; out data
 	out	(c), a ;; out VDP register number
-;src\mytestrom.c:1484: }
+;src\mytestrom.c:1526: }
 	ret
-;src\mytestrom.c:1486: void VDP60Hz(void)
+;src\mytestrom.c:1528: void VDP60Hz(void)
 ;	---------------------------------
 ; Function VDP60Hz
 ; ---------------------------------
 _VDP60Hz::
-;src\mytestrom.c:1497: __endasm;
+;src\mytestrom.c:1539: __endasm;
 	ld	a,(#_RG9SAV)
 	and	#0b11111101
 	ld	(#_RG9SAV),a
@@ -2179,14 +2249,14 @@ _VDP60Hz::
 	ld	c, #0x99 ;; VDP port #1 (unsupport "MSX1 adapter")
 	out	(c), b ;; out data
 	out	(c), a ;; out VDP register number
-;src\mytestrom.c:1498: }
+;src\mytestrom.c:1540: }
 	ret
-;src\mytestrom.c:1500: void PrintChar(char c) 
+;src\mytestrom.c:1542: void PrintChar(char c) 
 ;	---------------------------------
 ; Function PrintChar
 ; ---------------------------------
 _PrintChar::
-;src\mytestrom.c:1511: __endasm;
+;src\mytestrom.c:1553: __endasm;
 	push	ix
 	ld	ix,#0
 	add	ix,sp
@@ -2194,25 +2264,25 @@ _PrintChar::
 	call	#0xA2 ; Bios CHPUT
 	ei
 	pop	ix
-;src\mytestrom.c:1512: }
+;src\mytestrom.c:1554: }
 	ret
-;src\mytestrom.c:1541: void Print(char* text)
+;src\mytestrom.c:1583: void Print(char* text)
 ;	---------------------------------
 ; Function Print
 ; ---------------------------------
 _Print::
-;src\mytestrom.c:1545: while(*(text)) 
+;src\mytestrom.c:1587: while(*(text)) 
 00104$:
 	ld	a, (hl)
 	or	a, a
 	ret	Z
-;src\mytestrom.c:1547: character=*(text++);
+;src\mytestrom.c:1589: character=*(text++);
 	inc	hl
-;src\mytestrom.c:1548: if (character=='\n')
+;src\mytestrom.c:1590: if (character=='\n')
 	ld	c, a
 	sub	a, #0x0a
 	jr	NZ, 00102$
-;src\mytestrom.c:1550: PrintChar(10); //LF (Line Feed)
+;src\mytestrom.c:1592: PrintChar(10); //LF (Line Feed)
 	push	hl
 	ld	a, #0x0a
 	call	_PrintChar
@@ -2221,19 +2291,19 @@ _Print::
 	pop	hl
 	jp	00104$
 00102$:
-;src\mytestrom.c:1553: PrintChar(character);
+;src\mytestrom.c:1595: PrintChar(character);
 	push	hl
 	ld	a, c
 	call	_PrintChar
 	pop	hl
-;src\mytestrom.c:1556: }
+;src\mytestrom.c:1598: }
 	jp	00104$
-;src\mytestrom.c:1559: void     myVDPready(void) __naked															// Check if MSX2 VDP is ready (Internal Use)
+;src\mytestrom.c:1601: void     myVDPready(void) __naked															// Check if MSX2 VDP is ready (Internal Use)
 ;	---------------------------------
 ; Function myVDPready
 ; ---------------------------------
 _myVDPready::
-;src\mytestrom.c:1575: __endasm; 
+;src\mytestrom.c:1617: __endasm; 
 	    checkIfReady:
 	ld	a,#2
 	out	(#0x99),a ; wait till previous VDP execution is over (CE)
@@ -2247,7 +2317,7 @@ _myVDPready::
 	out	(#0x99),a
 	jp	c, checkIfReady
 	ret
-;src\mytestrom.c:1576: }
+;src\mytestrom.c:1618: }
 	.area _BANK0
 	.area _INITIALIZER
 	.area _CABS (ABS)

@@ -54,8 +54,8 @@
 .dw  0x0000
 
 init:
-        ld   sp,(0xfc4a) ; Stack at the top of memory.
-        call gsinit ; Initialise global variables
+        ld   sp,(0xfc4a) 	; Stack at the top of memory.
+        call gsinit 		; Initialise global variables
         call megarom
         call _main
         call #0x0000; call CHKRAM
@@ -164,7 +164,7 @@ ___sdcc_bcall_abc::
         push    hl
         ld      l, a
         ;;call    get_bank        ;must return A as current bank number, other registers expected to be unchanged
-		ld a,(#_curr_bank)
+		ld 		a,(#_curr_bank)
         ld      h, a
         ld      a, l
         ex      (sp), hl

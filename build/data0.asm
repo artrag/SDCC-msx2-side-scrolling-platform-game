@@ -1,6 +1,6 @@
 ;--------------------------------------------------------
 ; File Created by SDCC : free open source ANSI-C Compiler
-; Version 4.2.0 #13049 (MINGW64)
+; Version 4.2.0 #13081 (MINGW64)
 ;--------------------------------------------------------
 	.module data0
 	.optsdcc -mz80
@@ -41,15 +41,15 @@
 ; code
 ;--------------------------------------------------------
 	.area _BANK2
-;src\data0.c:3: void data0(void) __banked __naked {
+;src\data0.c:1: void data0(void) __banked __naked {
 ;	---------------------------------
 ; Function data0
 ; ---------------------------------
 	b_data0	= 2
 _data0::
-;src\data0.c:6: __endasm;
+;src\data0.c:4: __endasm;
 	.incbin	"data\tile0.bin"
-;src\data0.c:7: }
+;src\data0.c:5: }
 	.area _BANK2
 	.area _INITIALIZER
 	.area _CABS (ABS)

@@ -61,27 +61,31 @@ unsigned char  LevelMap[MaxLevelW*MaxLevelH];
 void main(void) 
 {
 	unsigned char rd;
-
+	
+	intro();
+	
 	rd = ReadMSXtype();					  	// Read MSX Type
 
 	if (rd==0) FT_errorHandler(3,"msx 1 ");	// If MSX1 got to Error !
-	
+		
 	MyLoadMap(1,LevelMap);					// load level map 256x11 arranged by columns
 	
 	chgmod(8);						  		// Init Screen 8
+
+	ObjectsInit();							// initialize logical object 
+
 	myVDPwrite(0,7);						// borders	
 	VDPlineSwitch();						// 192 lines
-	
 	VDP60Hz();
 
 	myHMMV(0,0,256,512, 0);					// Clear all VRAM  by Byte 0 (Black)
 	DisableInterrupt();
-	myVDPready();								// wait for command completion
+	myVDPready();							// wait for command completion
 	EnableInterrupt();
-
-	ObjectsInit();							// initialize logical object 
+	
 	SprtInit();								// initialize sprites in VRAM 
-
+	ObjectstoVRAM(0);	
+	
 	myInstISR();							// install a fake ISR to cut the overhead
 
 	page = 0;
@@ -189,20 +193,6 @@ void ScrollLeft(char step) __sdcccall(1)
 
 
 static unsigned char *p;
-__at(0xF3DF) unsigned char RG0SAV;
-__at(0xF3E0) unsigned char RG1SAV;
-
-__at(0xFFE7) unsigned char RG8SAV;
-__at(0xFFE8) unsigned char RG9SAV;
-__at(0xFFE9) unsigned char RG10SA;
-__at(0xFFEA) unsigned char RG11SA;
-__at(0xFFEB) unsigned char RG12SA;
-__at(0xFFEC) unsigned char RG13SA;
-__at(0xFFED) unsigned char RG14SA;
-__at(0xFFEE) unsigned char RG15SA;
-__at(0xFFEF) unsigned char RG16SA;
-__at(0xFFF0) unsigned char RG17SA;
-__at(0xFFF1) unsigned char RG18SA;
 
 
 void PlotOneColumnTile(void) __sdcccall(1) 
@@ -1325,34 +1315,86 @@ __asm
 __endasm;		
 }
 
-void SetVramW(char page, unsigned int addr) __sdcccall(1) __naked {
-	page;
+void SetVramR14( unsigned int addr) __sdcccall(1) __naked __preserves_regs(b,c,d,e,h,l,iyl,iyh) 
+{
 	addr;
 __asm
-					; Set VDP address counter to write from address ADE (17-bit)
-					; Enables the interrupts
-	ex de,hl
-    rlc h
-    rla
-    rlc h
-    rla
-    srl h
-    srl h
+    ld a,l
     di
     out (#0x99),a
-    ld a,#0x8E
+    ld a,h
+    ei
     out (#0x99),a
+    ret
+__endasm;		
+}
+void SetVramW14( unsigned int addr) __sdcccall(1) __naked __preserves_regs(b,c,d,e,h,l,iyl,iyh) 
+{
+	addr;
+__asm
     ld a,l
+    di
     out (#0x99),a
     ld a,h
     or a,#0x40
     ei
     out (#0x99),a
-	ex de,hl
+    ret
+__endasm;		
+}
+void SetVramW(char page, unsigned int addr) __sdcccall(1) __naked __preserves_regs(b,c,h,l,iyl,iyh) 
+{
+	page;
+	addr;
+__asm
+					; Set VDP address counter to write from address ADE (17-bit)
+					; Enables the interrupts
+    rlc d
+    rla
+    rlc d
+    rla
+    srl d
+    srl d
+    di
+    out (#0x99),a
+    ld a,#0x8E
+    out (#0x99),a
+    ld a,e
+    out (#0x99),a
+    ld a,d
+    or a,#0x40
+    ei
+    out (#0x99),a
     ret
 __endasm;		
 }
 
+
+void SetVramR(char page, unsigned int addr) __sdcccall(1) __naked __preserves_regs(b,c,h,l,iyl,iyh) 
+{
+	page;
+	addr;
+__asm
+					; Set VDP address counter to write from address ADE (17-bit)
+					; Enables the interrupts
+	rlc	d
+	rla
+	rlc	d
+	rla
+	srl	d
+	srl	d
+	di
+	out	(#0x99),a
+	ld	a,#0x8E
+	out	(#0x99),a
+	ld	a,e
+	out	(#0x99),a
+	ld	a,d 		; set for reading
+	ei
+	out	(#0x99),a
+    ret
+__endasm;		
+}
 
 void chgmod(char c) __sdcccall(1) __naked {
 	c;
@@ -1574,4 +1616,3 @@ __asm
     ret
 __endasm; 
 }
-

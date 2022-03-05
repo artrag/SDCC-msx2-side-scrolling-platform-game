@@ -49,7 +49,7 @@ void FT_errorHandler(char n, char *name) __sdcccall(1) ;
 void	myHMMV( unsigned int DX, unsigned int DY, unsigned int NX, unsigned int NY, char COL) __sdcccall(0) __naked;
 
 void myfVDP(void *Address)  __sdcccall(1)  __naked;
-void myVDPwrite( char vdpreg, char data ) __sdcccall(1) __naked;	// write to VDP Register
+void myVDPwrite( char value, char regnum) __sdcccall(1) __naked;	// write to VDP Register
 void myFT_wait(unsigned char cicles) __sdcccall(1) __naked;
 // char myPoint( unsigned int X,  unsigned int Y ) __sdcccall(1) __naked;
 void WaitLineInt(void) __sdcccall(1) __naked;
@@ -67,6 +67,8 @@ unsigned char 	myCheckkbd(unsigned char nrow) __sdcccall(1) __naked;
 __sfr __at 0x98 Port98;
 __sfr __at 0x99 Port99;
 
+char MyRand(void) __naked  __preserves_regs(b,c,iyl,iyh);
+
 char MyLoadTiles(char *file_name) __sdcccall(1);
 void MyLoadMap(char mapnumber,unsigned char* p ) __sdcccall(1);
 
@@ -79,10 +81,18 @@ void ScrollLeft(char step) __sdcccall(1);
 void BorderLinesL(unsigned char ScrnX,char page, int MapX) __sdcccall(1) __naked;
 void BorderLinesR(unsigned char ScrnX,char page, int MapX) __sdcccall(1) __naked;
 
-void SetVramW(char page, unsigned int addr) __sdcccall(1) __naked;
+void SetVramR(char page, unsigned int addr) __sdcccall(1) __naked __preserves_regs(b,c,h,l,iyl,iyh);
+void SetVramW(char page, unsigned int addr) __sdcccall(1) __naked __preserves_regs(b,c,h,l,iyl,iyh); 
 void VramWrite(unsigned int addr, unsigned int len) __sdcccall(1) __naked;
 
+void SetVramR14( unsigned int addr) __sdcccall(1) __naked __preserves_regs(b,c,d,e,h,l,iyl,iyh);
+void SetVramW14( unsigned int addr) __sdcccall(1) __naked __preserves_regs(b,c,d,e,h,l,iyl,iyh);
+
+
 void SprtInit(void) __sdcccall(1) ;
+
+void SetPalette(char *palette) __sdcccall(1);
+void RestorePalette(void) __naked;
 
 #define MaxObjNum 8
 
@@ -98,8 +108,15 @@ void     myVDPready(void) __naked;
 // DATA
 void sprite_patterns(void) __naked;
 void sprite_colors(void) __naked;
+
 void DataLevelMap(void) __banked __naked ;
 
+void intro(void) __banked;
+
+void data0(void) __banked __naked ;
+void data1(void) __banked __naked ;
+void data2(void) __banked __naked ;
+void data3(void) __banked __naked ;
 
 
 typedef struct {
@@ -138,3 +155,19 @@ typedef struct {
 #define opDOWN  0b00000000
 #define opLEFT  0b00000100
 #define opUP    0b00001000
+
+
+__at(0xF3DF) unsigned char RG0SAV;
+__at(0xF3E0) unsigned char RG1SAV;
+
+__at(0xFFE7) unsigned char RG8SAV;
+__at(0xFFE8) unsigned char RG9SAV;
+__at(0xFFE9) unsigned char RG10SA;
+__at(0xFFEA) unsigned char RG11SA;
+__at(0xFFEB) unsigned char RG12SA;
+__at(0xFFEC) unsigned char RG13SA;
+__at(0xFFED) unsigned char RG14SA;
+__at(0xFFEE) unsigned char RG15SA;
+__at(0xFFEF) unsigned char RG16SA;
+__at(0xFFF0) unsigned char RG17SA;
+__at(0xFFF1) unsigned char RG18SA;

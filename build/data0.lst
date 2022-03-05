@@ -1,6 +1,6 @@
                                       1 ;--------------------------------------------------------
                                       2 ; File Created by SDCC : free open source ANSI-C Compiler
-                                      3 ; Version 4.2.0 #13049 (MINGW64)
+                                      3 ; Version 4.2.0 #13081 (MINGW64)
                                       4 ;--------------------------------------------------------
                                       5 	.module data0
                                       6 	.optsdcc -mz80
@@ -41,13 +41,13 @@
                                      41 ; code
                                      42 ;--------------------------------------------------------
                                      43 	.area _BANK2
-                                     44 ;src\data0.c:3: void data0(void) __banked __naked {
+                                     44 ;src\data0.c:1: void data0(void) __banked __naked {
                                      45 ;	---------------------------------
                                      46 ; Function data0
                                      47 ; ---------------------------------
                            000002    48 	b_data0	= 2
       000000                         49 _data0::
-                                     50 ;src\data0.c:6: __endasm;
+                                     50 ;src\data0.c:4: __endasm;
       000000 00 00 00 00 00 00 00    51 	.incbin	"data\tile0.bin"
              00 00 00 00 00 00 00
              00 00 00 00 00 00 00
@@ -67,7 +67,7 @@
              00 00 00 00 00 00 00
              00 00 00 00 00 00 00
              00 00
-                                     52 ;src\data0.c:7: }
+                                     52 ;src\data0.c:5: }
                                      53 	.area _BANK2
                                      54 	.area _INITIALIZER
                                      55 	.area _CABS (ABS)

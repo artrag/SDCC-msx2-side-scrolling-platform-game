@@ -1,0 +1,64 @@
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 1.
+Hexadecimal [24-Bits]
+
+Symbol Table
+
+    .__.$$$.                                                    =  002710 L
+    .__.ABS.                                                    =  000000 G
+    .__.CPU.                                                    =  000000 L
+    .__.H$L.                                                    =  000000 L
+  7 SPcoLoop                                                       000213 R
+  7 _FireIteration                                                 000171 GR
+  7 _MyRand                                                        000200 GR
+    _Port98                                                     =  000098 
+    _Port99                                                     =  000099 
+    _RG0SAV                                                     =  00F3DF G
+    _RG10SA                                                     =  00FFE9 G
+    _RG11SA                                                     =  00FFEA G
+    _RG12SA                                                     =  00FFEB G
+    _RG13SA                                                     =  00FFEC G
+    _RG14SA                                                     =  00FFED G
+    _RG15SA                                                     =  00FFEE G
+    _RG16SA                                                     =  00FFEF G
+    _RG17SA                                                     =  00FFF0 G
+    _RG18SA                                                     =  00FFF1 G
+    _RG1SAV                                                     =  00F3E0 G
+    _RG8SAV                                                     =  00FFE7 G
+    _RG9SAV                                                     =  00FFE8 G
+  7 _RestorePalette                                                000235 GR
+  7 _SetPalette                                                    000210 GR
+    _SetVramW14                                                    ****** GX
+    _VramWrite                                                     ****** GX
+  7 __msx_palette                                                  00023B R
+  8 __xinit__g_RandomSeed8                                         000000 R
+  1 _buffer                                                        000000 GR
+    _chgmod                                                        ****** GX
+  7 _fire_palette                                                  00026B GR
+  2 _g_RandomSeed8                                                 000000 GR
+  7 _gradient_colrs                                                000718 GR
+  7 _gradient_tiles                                                000728 GR
+  7 _intro                                                         000000 GR
+    _myCheckkbd                                                    ****** GX
+    _myFT_wait                                                     ****** GX
+    _myVDPwrite                                                    ****** GX
+  7 _title_sat                                                     000698 GR
+  7 _title_sprites                                                 000298 GR
+    b_intro                                                     =  000008 G
+
+
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80), page 2.
+Hexadecimal [24-Bits]
+
+Area Table
+
+   0 _CODE                                      size      0   flags    0
+   1 _DATA                                      size    300   flags    0
+   2 _INITIALIZED                               size      2   flags    0
+   3 _DABS                                      size      0   flags    8
+   4 _HOME                                      size      0   flags    0
+   5 _GSINIT                                    size      0   flags    0
+   6 _GSFINAL                                   size      0   flags    0
+   7 _BANK8                                     size    7A8   flags    0
+   8 _INITIALIZER                               size      2   flags    0
+   9 _CABS                                      size      0   flags    8
+

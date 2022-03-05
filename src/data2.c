@@ -1,4 +1,4 @@
-static void data2() __naked {
+void data2(void) __banked __naked {
     __asm
     .incbin "tileset.bin"
     __endasm;
