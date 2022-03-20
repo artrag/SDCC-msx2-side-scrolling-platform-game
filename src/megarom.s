@@ -41,6 +41,8 @@
 
 .area _HEADER (ABS)
 
+.globl init
+
 ;; megarom header
 .org 0x4000
 .db  0x41
@@ -179,7 +181,6 @@ ___sdcc_bcall_abc::
 		ld (#0xb000),a
 		ret
 
-;
 ___sdcc_bjump_abc:
         ;;call    set_bank        ;set current bank to A, other registers expected to be unchanged
 		ld (#0x9000),a
@@ -210,7 +211,6 @@ ___sdcc_bcall_ehl::
 		ld (#0xb000),a
 		ret
 
-;
 ___sdcc_bjump_ehl:
 		ld      a, e
 		;;call    set_bank
@@ -221,7 +221,153 @@ ___sdcc_bjump_ehl:
 		jp      (hl)
         
 
+.globl	__mulint
+
+__mulint:
+        ld	c, l
+        ld	b, h
+
+		;; 16-bit multiplication
+		;;
+		;; Entry conditions
+		;; bc = multiplicand
+		;; de = multiplier
+		;;
+		;; Exit conditions
+		;; de = less significant word of product
+		;;
+		;; Register used: AF,BC,DE,HL
+__mul16::
+		xor	a,a
+		ld	l,a
+		or	a,b
+		ld	b,#16
+
+        ;; Optimise for the case when this side has 8 bits of data or
+        ;; less.  This is often the case with support address calls.
+        jr      NZ,2$
+        ld      b,#8
+        ld      a,c
+1$:
+        ;; Taken from z88dk, which originally borrowed from the
+        ;; Spectrum rom.
+        add     hl,hl
+2$:
+        rl      c
+        rla                     ;DLE 27/11/98
+        jr      NC,3$
+        add     hl,de
+3$:
+        djnz    1$
+        ex	de, hl
+        ret
+
+
+.globl	__divuint
+.globl	__divuchar
+
+
+__divuchar:
+	ld	e, l
+	ld	l, a
+
+        ;; Fall through
+__divu8::
+        ld      h,#0x00
+        ld      d,h
+        ; Fall through to __divu16
+
+        ;; unsigned 16-bit division
+        ;;
+        ;; Entry conditions
+        ;;   HL = dividend
+        ;;   DE = divisor
+        ;;
+        ;; Exit conditions
+        ;;   DE = quotient
+        ;;   HL = remainder
+        ;;   carry = 0
+        ;;   If divisor is 0, quotient is set to "infinity", i.e HL = 0xFFFF.
+        ;;
+        ;; Register used: AF,B,DE,HL
+__divuint:
+__divu16::
+        ;; Two algorithms: one assumes divisor <2^7, the second
+        ;; assumes divisor >=2^7; choose the applicable one.
+        ld      a,e
+        and     a,#0x80
+        or      a,d
+        jr      NZ,.morethan7bits
+        ;; Both algorithms "rotate" 24 bits (H,L,A) but roles change.
+
+        ;; unsigned 16/7-bit division
+.atmost7bits:
+        ld      b,#16           ; bits in dividend and possible quotient
+        ;; Carry cleared by AND/OR, this "0" bit will pass trough HL.[*]
+        adc     hl,hl
+.dvloop7:
+        ;; HL holds both dividend and quotient. While we shift a bit from
+        ;;  MSB of dividend, we shift next bit of quotient in from carry.
+        ;; A holds remainder.
+        rla
+
+        ;; If remainder is >= divisor, next bit of quotient is 1.  We try
+        ;;  to compute the difference.
+        sub     a,e
+        jr      NC,.nodrop7     ; Jump if remainder is >= dividend
+        add     a,e             ; Otherwise, restore remainder
+        ;; The add above sets the carry, because sbc a,e did set it.
+.nodrop7:
+        ccf                     ; Complement borrow so 1 indicates a
+                                ;  successful substraction (this is the
+                                ;  next bit of quotient)
+        adc     hl,hl
+        djnz    .dvloop7
+        ;; Carry now contains the same value it contained before
+        ;; entering .dvloop7[*]: "0" = valid result.
+        ld      e,a             ; DE = remainder, HL = quotient
+        ex	de, hl
+        ret
+
+.morethan7bits:
+        ld      b,#9            ; at most 9 bits in quotient.
+        ld      a,l             ; precompute the first 7 shifts, by
+        ld      l,h             ;  doing 8
+        ld      h,#0
+        rr      l               ;  undoing 1
+.dvloop:
+        ;; Shift next bit of quotient into bit 0 of dividend
+        ;; Shift next MSB of dividend into LSB of remainder
+        ;; A holds both dividend and quotient. While we shift a bit from
+        ;;  MSB of dividend, we shift next bit of quotient in from carry
+        ;; HL holds remainder
+        adc     hl,hl           ; HL < 2^(7+9), no carry, ever.
+
+        ;; If remainder is >= divisor, next bit of quotient is 1. We try
+        ;;  to compute the difference.
+        sbc     hl,de
+        jr      NC,.nodrop      ; Jump if remainder is >= dividend
+        add     hl,de           ; Otherwise, restore remainder
+	;; The add above sets the carry, because sbc hl,de did set it.
+.nodrop:
+        ccf                     ; Complement borrow so 1 indicates a
+                                ;  successful substraction (this is the
+                                ;  next bit of quotient)
+        rla
+        djnz    .dvloop
+        ;; Take care of the ninth quotient bit! after the loop B=0.
+        rl      b               ; BA = quotient
+        ;; Carry now contains "0" = valid result.
+        ld      d,b
+        ld      e,a             ; DE = quotient, HL = remainder
+        ret
+
+
         .area _DATA
 _curr_bank::
         .ds 2
 
+
+
+	.area _BANK0
+	

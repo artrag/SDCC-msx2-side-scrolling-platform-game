@@ -70,7 +70,7 @@ __sfr __at 0x99 Port99;
 char MyRand(void) __naked  __preserves_regs(b,c,iyl,iyh);
 
 char MyLoadTiles(char *file_name) __sdcccall(1);
-void MyLoadMap(char mapnumber,unsigned char* p ) __sdcccall(1);
+void MyLoadMap(char MapNum,unsigned char* p ) __sdcccall(1) __naked;
 
 void NewLine(unsigned char x,char page, int MapX) __sdcccall(1) __naked;
 void PatchPlotOneTile(unsigned char ScrnX,char page, int MapX) __sdcccall(1) __naked;
@@ -109,14 +109,14 @@ void     myVDPready(void) __naked;
 void sprite_patterns(void) __naked;
 void sprite_colors(void) __naked;
 
-void DataLevelMap(void) __banked __naked ;
+void L0DataLevelMap(void) __banked __naked ;
+void L1DataLevelMap(void) __banked __naked ;
+void L2DataLevelMap(void) __banked __naked ;
+void L3DataLevelMap(void) __banked __naked ;
+void L4DataLevelMap(void) __banked __naked ;
+void L5DataLevelMap(void) __banked __naked ;
 
 void intro(void) __banked;
-
-void data0(void) __banked __naked ;
-void data1(void) __banked __naked ;
-void data2(void) __banked __naked ;
-void data3(void) __banked __naked ;
 
 
 typedef struct {
@@ -171,3 +171,13 @@ __at(0xFFEE) unsigned char RG15SA;
 __at(0xFFEF) unsigned char RG16SA;
 __at(0xFFF0) unsigned char RG17SA;
 __at(0xFFF1) unsigned char RG18SA;
+
+void audioinit(void) __banked;
+void audiosfxinit(char nfx) __banked;
+void audioplay(void) __banked;
+void audiomute(void) __banked;
+
+
+extern unsigned char  LevelMap[];
+
+void ChangeLevel(void);

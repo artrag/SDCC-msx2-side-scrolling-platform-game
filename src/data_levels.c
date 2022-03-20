@@ -1,23 +1,32 @@
 
-
-void sprite_patterns(void) __banked __naked
-{
-__asm
-    .incbin "data\knight_frm.bin"
-__endasm;	
-}
-
-void sprite_colors(void) __banked __naked
-{
-__asm
-    .incbin "data\knight_clr.bin"
-__endasm;	
-}
-
-void DataLevelMap(void) __banked __naked 
-{
+void L0DataLevelMap(void) __banked __naked {
     __asm
-    .incbin "data\datamap.bin"
+    .incbin "data\levels\L0datamap.bin"
+    __endasm;
+}
+void L1DataLevelMap(void) __banked __naked {
+    __asm
+    .incbin "data\levels\L1datamap.bin"
+    __endasm;
+}
+void L2DataLevelMap(void) __banked __naked {
+    __asm
+    .incbin "data\levels\L2datamap.bin"
+    __endasm;
+}
+void L3DataLevelMap(void) __banked __naked {
+    __asm
+    .incbin "data\levels\L3datamap.bin"
+    __endasm;
+}
+void L4DataLevelMap(void) __banked __naked {
+    __asm
+    .incbin "data\levels\L4datamap.bin"
+    __endasm;
+}
+void L5DataLevelMap(void) __banked __naked {
+    __asm
+    .incbin "data\levels\L5datamap.bin"
     __endasm;
 }
 
