@@ -29,13 +29,13 @@ unsigned char page;							// VDP active page
   signed int  WLevelx;						// (X,Y) position in the level map 4096x192 of
 unsigned char WLevely;						//  the 240x176 window screen 
 
-unsigned char LevelW;						// size of the actual map in tile (initialised at level change
+unsigned int LevelW;						// size of the actual map in tile (initialised at level change
 unsigned char LevelH;
 
   signed int WLevelDX;						// scrolling direction and speed F8.8 on X
   signed int WLevelDY;						// scrolling direction and speed F8.8 on Y
 
-#define MaxLevelW 256U						// Max size of the map in tile
+#define MaxLevelW 512U						// Max size of the map in tile
 #define MaxLevelH 11U
 
 #define WindowW 240U						// size of the screen in pixels
@@ -44,9 +44,7 @@ unsigned char LevelH;
 unsigned char newx,page;
 unsigned char OldIsr[3];
 
-// unsigned char buffer[256*8];
-
-char cursat;
+unsigned char cursat;
 
 /*
 SAT0 = 0FA00h ; R5 = F7h;R11 = 01h
@@ -61,16 +59,19 @@ unsigned char  LevelMap[MaxLevelW*MaxLevelH];
 void main(void) 
 {
 	unsigned char rd;
-	
+
+	audioinit();
+
 	intro();
 	
 	rd = ReadMSXtype();					  	// Read MSX Type
-
 	if (rd==0) FT_errorHandler(3,"msx 1 ");	// If MSX1 got to Error !
-		
-	MyLoadMap(1,LevelMap);					// load level map 256x11 arranged by columns
+	
+	MyLoadMap(0,LevelMap);					// load level map 256x11 arranged by columns
 	
 	chgmod(8);						  		// Init Screen 8
+
+	audiosfxinit(0);						
 
 	ObjectsInit();							// initialize logical object 
 
@@ -87,7 +88,9 @@ void main(void)
 	ObjectstoVRAM(0);	
 	
 	myInstISR();							// install a fake ISR to cut the overhead
-
+	myVDPwrite((char)(WindowH-8),(char)19); 				// set Line Interrupt
+	
+	
 	page = 0;
 	mySetAdjust(0,8);						// same as myVDPwrite((0-8) & 15,18);	
 	
@@ -114,6 +117,9 @@ void main(void)
 	
 	while (myCheckkbd(7)==0xFF)
 	{
+		ChangeLevel();
+		audioplay();
+		
 		WaitLineInt();			// wait for line 176-16
 		cursat^=1;				// swap sat 0 and sat 1
 				
@@ -132,7 +138,6 @@ void main(void)
 		}
 	}
 
-	myISRrestore();
 	chgmod(0);
 	Reboot(0);
 }
@@ -149,7 +154,7 @@ void ScrollRight(char step) __sdcccall(1)
 			MyBorder.nx = 15;
 			MyBorder.dy = 256*page;
 			myfVDP(&MyBorder);
-			BorderLinesR(WindowW-1,page, WLevelx+WindowW-1);		
+			BorderLinesR((unsigned char)(WindowW-1),page, WLevelx+WindowW-1);		
 		break;
 		default:								// case 1-15
 			MyCommand.sx = 16*step;
@@ -199,13 +204,15 @@ void PlotOneColumnTile(void) __sdcccall(1)
 {
 __asm 
 	exx
+	ld a,(_MemPageOffset)
+	ld b,a
 	ld	hl,(_p)
 	ld	a,(hl)
 	rlca	
 	rlca
 	and a,#3
 	add a,a
-	add a,#b_data0
+	add a,b				; memory page offset
 	ld (#0x9000),a
     inc a
 	ld (#0xb000),a
@@ -234,13 +241,15 @@ void PlotOneColumnTileAndMask(void) __sdcccall(1)
 {
 __asm 
 	exx
+	ld a,(_MemPageOffset)
+	ld b,a
 	ld	hl,(_p)
 	ld	a,(hl)
 	rlca	
 	rlca
 	and a,#3
 	add a,a	
-	add a,#b_data0
+	add a,b				; memory page offset
 	ld (#0x9000),a
     inc a
 	ld (#0xb000),a
@@ -696,28 +705,8 @@ __asm
 __endasm;
 
 }	
-/*
-unsigned char myInPort(unsigned char port) __sdcccall(1) __naked __preserves_regs(b,h,l,d,e,iyl,iyh)
-{
-	port;
-__asm	
-	ld		c, a			;	port
-	in		a, (c)			; return value in A
-	ret
-__endasm;
-}
 
-void myOutPort(unsigned char port,unsigned char data) __sdcccall(1) __naked __preserves_regs(a,b,h,l,d,e,iyl,iyh)
-{
-	port;
-	data;
-__asm	
-	ld		c, a			; port in A
-	out		(c),l			; value in L
-	ret
-__endasm;
-}
-*/
+
 void  	myfVDP(void *Address)  __sdcccall(1)  __naked
 {
 	Address;
@@ -874,31 +863,7 @@ WaitLI:
 __endasm;
 }
 
-/* ---------------------------------
-				FT_SetName
 
-	Set the name of a file to load
-				(MSX DOS)
------------------------------------*/ 
-/*
-void FT_SetName( FCB *p_fcb, const char *p_name ) __sdcccall(1) 
-{
-	char i, j;
-	memset( p_fcb, 0, sizeof(FCB) );
-	for( i = 0; i < 11; i++ ) {
-		p_fcb->name[i] = ' ';
-	}
-	for( i = 0; (i < 8) && (p_name[i] != 0) && (p_name[i] != '.'); i++ ) {
-		p_fcb->name[i] =  p_name[i];
-	}
-	if( p_name[i] == '.' ) {
-		i++;
-		for( j = 0; (j < 3) && (p_name[i + j] != 0) && (p_name[i + j] != '.'); j++ ) {
-			p_fcb->ext[j] =  p_name[i + j] ;
-		}
-	}
-}
-*/
 /* ---------------------------------
 			FT_errorHandler
 
@@ -906,6 +871,7 @@ void FT_SetName( FCB *p_fcb, const char *p_name ) __sdcccall(1)
 -----------------------------------*/ 
 void FT_errorHandler(char n, char *name) __sdcccall(1) 
 {
+	name;
 	// SetColors(15,6,6);
 	// FORCLR   =   0xF3E9       ; foreground color 
 	// BAKCLR   =   0xF3EA       ; background color
@@ -915,70 +881,186 @@ void FT_errorHandler(char n, char *name) __sdcccall(1)
 	
 	switch (n)
 	{
-	  case 1:
-		  Print("\n\rFAILED: fcb_open(): ");
-		  Print(name);
-	  break;
-
-	  case 2:
-		  Print("\n\rFAILED: fcb_close():");
-		  Print(name);
-	  break;  
-
 	  case 3:
 		  Print("\n\rStop Kidding, run me on MSX2 !");
 	  break;
 	  
-	  case 4:
-		  Print("\n\rUnespected end of file:");
-		  Print(name);		  
+	  default:
+			Print("\n\rUnkon error. Sorry !");
 	  break; 
 	}
 	Reboot(0);
 }
 
-void MyLoadMap(char mapnumber,unsigned char* p ) __sdcccall(1)
+void ChangeLevel(void) 
 {
-	char *q = &((char*)DataLevelMap)[2]+12*mapnumber;
+	unsigned char k = myCheckkbd(0);
 	
-	// access paged data 
+	if (k == 0xFF) 
+		return;
+	else if (k == 0xFE)	{
+		k = 0;
+	}
+	else if (k == 0xFD)	{
+		k = 1;
+	}
+	else if (k == 0xFB)	{
+		k = 2;
+	}
+	else if (k == 0xF7) {
+		k = 3;
+	}
+	else if (k == 0xEF) {
+		k = 4;
+	}
+	else if (k == 0xDF) {
+		k = 5;
+	} 
+	else {
+		k=0;
+	}
+	
+	audioinit();
+	
+	MyLoadMap(k,LevelMap);
+	audiosfxinit(k);
+		
+	myVDPwrite((0-8) & 15,18);	
+
+	MyBorder.dx = 240;
+	MyBorder.nx = 15;
+	MyBorder.dy = 256*page;
+	myfVDP(&MyBorder);
+	
+	for (WLevelx = 0;WLevelx<0+WindowW;) {
+		myFT_wait(1);		
+		NewLine(WLevelx,page,WLevelx);WLevelx++;
+		NewLine(WindowW-WLevelx,page,WindowW-WLevelx);	WLevelx++;
+		NewLine(WLevelx,page,WLevelx);WLevelx++;
+		NewLine(WindowW-WLevelx,page,WindowW-WLevelx);	WLevelx++;
+	}
+
+	WLevelx = 0;	
+
+	ObjectstoVRAM(0);
+	
+}
+
+char MemPageOffset;
+
+
+void MyLoadMap(char MapNum,unsigned char* p ) __sdcccall(1) __naked
+{
+	MapNum;
+	p;
 	__asm
-	ld	a,#b_DataLevelMap
+	; A MapNum
+	; DE destination
+	
+	ld hl,#_BankLevelMap
+	add a,a
+	ld c,a
+	ld b,#0
+	add hl,bc
+		
+	ld	a,(hl)
 	ld (#0x9000),a
 	ld (#_curr_bank),a
     inc a
 	ld (#0xb000),a
-	__endasm;	
 	
-	LevelW = ((char*)DataLevelMap)[0];
-	// LevelH = ((char*)DataLevelMap)[1];
-	LevelH = 11;
+	inc hl
+	ld  a,(hl)
+	ld (_MemPageOffset),a	
+
+	ld bc,#_LevelWidth-#_BankLevelMap-#1
+	add hl,bc
+	ld c,(hl)
+	inc hl 
+	ld b,(hl)
+	ld (#_LevelW),bc
+
+	ld bc,#_LevelHeight-#_LevelWidth-#1
+	add hl,bc
+	ld a,(hl)
+	ld (#_LevelH),a
+
+	ld bc,#_DataLevelMap-#_LevelHeight
+	add hl,bc
+	ld c,(hl)
+	inc hl 
+	ld b,(hl)
 	
-	for (char t=0;t<LevelW;t++) {
-		memcpy(p,q,11);
-		p +=11;
-		q +=24;
-	}
+	push de		; dest
+	push bc		; source
+	
+	ld de,(#_LevelH)
+	ld d,#0
+	ld hl,(#_LevelW)
+	call	__mulint
+	ld c,e		; size
+	ld b,d
+	
+	pop 	hl	; source
+	pop 	de	; dest 
+	
+	ldir
+	ret 
+
+
+	.include "data\levels\L0metadatamap.asm"	
+	.include "data\levels\L1metadatamap.asm"	
+	.include "data\levels\L2metadatamap.asm"	
+	.include "data\levels\L3metadatamap.asm"	
+	.include "data\levels\L4metadatamap.asm"	
+	.include "data\levels\L5metadatamap.asm"
+	
+_BankLevelMap:
+	.db #b_L0DataLevelMap,#b_L0data0
+	.db #b_L1DataLevelMap,#b_L1data0
+	.db #b_L2DataLevelMap,#b_L2data0
+	.db #b_L3DataLevelMap,#b_L3data0
+	.db #b_L4DataLevelMap,#b_L4data0
+	.db #b_L5DataLevelMap,#b_L5data0
+
+_LevelWidth:
+	.dw #L0width
+	.dw #L1width
+	.dw #L2width
+	.dw #L3width
+	.dw #L4width
+	.dw #L5width
+	
+_LevelHeight:
+	.dw #L0height
+	.dw #L1height	
+	.dw #L2height	
+	.dw #L3height	
+	.dw #L4height	
+	.dw #L5height	
+	
+_DataLevelMap:
+	.dw _L0DataLevelMap
+	.dw _L1DataLevelMap
+	.dw _L2DataLevelMap
+	.dw _L3DataLevelMap
+	.dw _L4DataLevelMap
+	.dw _L5DataLevelMap	
+
+	__endasm;
 }
 
 void myISR(void) __sdcccall(1) __naked
-{
-						
+{						
 __asm 
-	push af
+
 #ifdef WBORDER	
 	ld	a,#0x03			// blue
 	out	(#0x99),a
 	ld	a,#128+#7
 	out	(#0x99),a 
 #endif
-	xor  a,a           ; set Status Register #0 for reading
-	out (#0x99),a
-	ld  a,#0x8f
-	out (#0x99),a
 
-	in  a,(#0x99)		; mimimum ISR
-	
 	ld a,(#_cursat)
 	and a,a
 	ld a,#3				// SAT1 = 1FA00h;
@@ -988,8 +1070,8 @@ setsat1:
 	out	(#0x99),a
 	ld	a,#128+#11
 	out	(#0x99),a 
-	
-	
+
+		
 #ifdef WBORDER	
 	xor	a,a
 	out	(#0x99),a
@@ -997,23 +1079,14 @@ setsat1:
 	out	(#0x99),a 
 #endif
 
-	pop	af
-	ei 
 	ret
 __endasm;
 }
 
 void myInstISR(void) __sdcccall(1) __naked
 {
-	myVDPwrite(WindowH-8,19); // indagare sul glitch !!! xxx
-	// RG0SAV |= 16;
-	// myVDPwrite(RG0SAV,0);
 	
 __asm 
-	ld	hl,#0xFD9A
-	ld  de,#_OldIsr
-	ld 	bc,#3
-	ldir
 	di
 	ld	a,#0xC3
 	ld  (#0xFD9A+#0),a
@@ -1024,21 +1097,6 @@ __asm
 __endasm;
 }
 
-void myISRrestore(void) __sdcccall(1) __naked
-{
-	RG0SAV &= 0xEF;
-	myVDPwrite(RG0SAV,0);
-	
-__asm 
-	ld	hl,#_OldIsr
-	ld  de,#0xFD9A
-	ld 	bc,#3
-	di 
-	ldir
-	ei
-	ret
-__endasm;
-}
 
 	
 
@@ -1085,7 +1143,7 @@ void ObjectsInit(void) {
 	for (t=0;t<MaxObjNum;t++)
 	{
 		object[t].x = t*LevelW*4/MaxObjNum + WindowW/2;
-		object[t].y = (t & 1) ? LevelH*16-32 : 0;
+		object[t].y = (t & 1) ? 128 : 80;
 		object[t].frame = t;
 		object[t].status = 255;		// 0 is for inactive
 	}
@@ -1213,7 +1271,7 @@ __endasm;
 #endif
 
 __asm
-	ld  a,(_cursat)
+	ld  a,(#_cursat)
 	and a
 	ld  a,#1
 	ld	de,#0x0FA00 

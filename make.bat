@@ -4,10 +4,12 @@
 set Path=%Path%;C:\Users\ragozini_a\Documents\SDCC\bin
 
 
-set CCFLAGS=-mz80 --opt-code-speed --std-c11 --no-std-crt0 --nostdlib --max-allocs-per-node 20000 
+rem set CCFLAGS=-mz80 --opt-code-speed --std-c11 --no-std-crt0 --nostdlib --max-allocs-per-node 20000 
+set CCFLAGS=-mz80 --opt-code-speed --std-c11 --no-std-crt0 --nostdlib --max-allocs-per-node 200000 
 set RAM_ADDR=0xc000
 set BANK0_SIZE=0x3000
 set BANKn_SIZE=0x4000
+
 set  BANK0_ADDR=0x004100
 set  BANK2_ADDR=0x028000
 set  BANK4_ADDR=0x048000
@@ -44,7 +46,8 @@ set BANK58_ADDR=0x3a8000
 set BANK60_ADDR=0x3c8000
 set BANK62_ADDR=0x3e8000
 
-set BANKS_ADDR=-Wl-b_BANK0=%BANK0_ADDR% -Wl-b_BANK2=%BANK2_ADDR% -Wl-b_BANK4=%BANK4_ADDR% -Wl-b_BANK6=%BANK6_ADDR% -Wl-b_BANK8=%BANK8_ADDR% -Wl-b_BANK10=%BANK10_ADDR% -Wl-b_BANK12=%BANK12_ADDR% -Wl-b_BANK14=%BANK14_ADDR% -Wl-b_BANK16=%BANK16_ADDR% -Wl-b_BANK18=%BANK18_ADDR% -Wl-b_BANK20=%BANK20_ADDR% -Wl-b_BANK22=%BANK22_ADDR% -Wl-b_BANK24=%BANK24_ADDR% -Wl-b_BANK26=%BANK26_ADDR% -Wl-b_BANK28=%BANK28_ADDR% -Wl-b_BANK30=%BANK30_ADDR% -Wl-b_BANK32=%BANK32_ADDR% -Wl-b_BANK34=%BANK34_ADDR% -Wl-b_BANK36=%BANK36_ADDR% -Wl-b_BANK38=%BANK38_ADDR% -Wl-b_BANK40=%BANK40_ADDR% -Wl-b_BANK42=%BANK42_ADDR% -Wl-b_BANK44=%BANK44_ADDR% -Wl-b_BANK46=%BANK46_ADDR% -Wl-b_BANK48=%BANK48_ADDR% -Wl-b_BANK50=%BANK50_ADDR% -Wl-b_BANK52=%BANK52_ADDR% -Wl-b_BANK54=%BANK54_ADDR% -Wl-b_BANK56=%BANK56_ADDR% -Wl-b_BANK58=%BANK58_ADDR% -Wl-b_BANK60=%BANK60_ADDR% -Wl-b_BANK62=%BANK62_ADDR%
+
+set BANKS_ADDR=-Wl-b_BANK0=%BANK0_ADDR% -Wl-b_BANK2=%BANK2_ADDR% -Wl-b_BANK4=%BANK4_ADDR% -Wl-b_BANK6=%BANK6_ADDR% -Wl-b_BANK8=%BANK8_ADDR% -Wl-b_BANK10=%BANK10_ADDR% -Wl-b_BANK12=%BANK12_ADDR% -Wl-b_BANK14=%BANK14_ADDR% -Wl-b_BANK16=%BANK16_ADDR% -Wl-b_BANK18=%BANK18_ADDR% -Wl-b_BANK20=%BANK20_ADDR% -Wl-b_BANK22=%BANK22_ADDR% -Wl-b_BANK24=%BANK24_ADDR% -Wl-b_BANK26=%BANK26_ADDR% -Wl-b_BANK28=%BANK28_ADDR% -Wl-b_BANK30=%BANK30_ADDR% -Wl-b_BANK32=%BANK32_ADDR% -Wl-b_BANK34=%BANK34_ADDR% -Wl-b_BANK36=%BANK36_ADDR% -Wl-b_BANK38=%BANK38_ADDR% -Wl-b_BANK40=%BANK40_ADDR% -Wl-b_BANK42=%BANK42_ADDR% -Wl-b_BANK44=%BANK44_ADDR% -Wl-b_BANK46=%BANK46_ADDR% -Wl-b_BANK48=%BANK48_ADDR% -Wl-b_BANK50=%BANK50_ADDR% -Wl-b_BANK52=%BANK52_ADDR% -Wl-b_BANK54=%BANK54_ADDR% -Wl-b_BANK56=%BANK56_ADDR% -Wl-b_BANK58=%BANK58_ADDR% -Wl-b_BANK60=%BANK60_ADDR% -Wl-b_BANK62=%BANK62_ADDR% 
 
 set BUILD=build\
 
@@ -57,24 +60,52 @@ mkdir %TMP% >nul: 2>nul:
 rem needed by openmsx config
 
 mkdir dska >nul: 2>nul:
-mkdir dskb >nul: 2>nul:
-mkdir rom  >nul: 2>nul:
-
 
 sdasz80 -o %BUILD%megarom.rel src\megarom.s 
-rem sdasz80 -o %BUILD%megarom.rel src\megarom.s F:\SDCC\lib\src\z80\mul.s
+sdasz80 -o %BUILD%audio.rel src\audio.s 
+
+						
+sdcc %CCFLAGS% -o	%BUILD%mytestrom.rel 	--codeseg BANK0 --code-size %BANK0_SIZE% -c src\mytestrom.c 	
+										
+sdcc %CCFLAGS% -o	%BUILD%L0data0.rel		--codeseg BANK2 --code-size %BANKn_SIZE% -c src\L0data0.c		
+sdcc %CCFLAGS% -o	%BUILD%L0data1.rel		--codeseg BANK4 --code-size %BANKn_SIZE% -c src\L0data1.c		
+sdcc %CCFLAGS% -o	%BUILD%L0data2.rel		--codeseg BANK6 --code-size %BANKn_SIZE% -c src\L0data2.c		
+sdcc %CCFLAGS% -o	%BUILD%L0data3.rel		--codeseg BANK8 --code-size %BANKn_SIZE% -c src\L0data3.c		
+
+sdcc %CCFLAGS% -o	%BUILD%L1data0.rel		--codeseg BANK10 --code-size %BANKn_SIZE% -c src\L1data0.c		
+sdcc %CCFLAGS% -o	%BUILD%L1data1.rel		--codeseg BANK12 --code-size %BANKn_SIZE% -c src\L1data1.c		
+sdcc %CCFLAGS% -o	%BUILD%L1data2.rel		--codeseg BANK14 --code-size %BANKn_SIZE% -c src\L1data2.c		
+sdcc %CCFLAGS% -o	%BUILD%L1data3.rel		--codeseg BANK16 --code-size %BANKn_SIZE% -c src\L1data3.c		
+
+sdcc %CCFLAGS% -o	%BUILD%L2data0.rel		--codeseg BANK18 --code-size %BANKn_SIZE% -c src\L2data0.c		
+sdcc %CCFLAGS% -o	%BUILD%L2data1.rel		--codeseg BANK20 --code-size %BANKn_SIZE% -c src\L2data1.c		
+sdcc %CCFLAGS% -o	%BUILD%L2data2.rel		--codeseg BANK22 --code-size %BANKn_SIZE% -c src\L2data2.c		
+sdcc %CCFLAGS% -o	%BUILD%L2data3.rel		--codeseg BANK24 --code-size %BANKn_SIZE% -c src\L2data3.c		
+
+sdcc %CCFLAGS% -o	%BUILD%L3data0.rel		--codeseg BANK26 --code-size %BANKn_SIZE% -c src\L3data0.c		
+sdcc %CCFLAGS% -o	%BUILD%L3data1.rel		--codeseg BANK28 --code-size %BANKn_SIZE% -c src\L3data1.c		
+sdcc %CCFLAGS% -o	%BUILD%L3data2.rel		--codeseg BANK30 --code-size %BANKn_SIZE% -c src\L3data2.c		
+sdcc %CCFLAGS% -o	%BUILD%L3data3.rel		--codeseg BANK32 --code-size %BANKn_SIZE% -c src\L3data3.c		
+										
+sdcc %CCFLAGS% -o	%BUILD%L4data0.rel		--codeseg BANK34 --code-size %BANKn_SIZE% -c src\L4data0.c		
+sdcc %CCFLAGS% -o	%BUILD%L4data1.rel		--codeseg BANK36 --code-size %BANKn_SIZE% -c src\L4data1.c		
+sdcc %CCFLAGS% -o	%BUILD%L4data2.rel		--codeseg BANK38 --code-size %BANKn_SIZE% -c src\L4data2.c		
+sdcc %CCFLAGS% -o	%BUILD%L4data3.rel		--codeseg BANK40 --code-size %BANKn_SIZE% -c src\L4data3.c		
+
+sdcc %CCFLAGS% -o	%BUILD%L5data0.rel		--codeseg BANK42 --code-size %BANKn_SIZE% -c src\L5data0.c		
+sdcc %CCFLAGS% -o	%BUILD%L5data1.rel		--codeseg BANK44 --code-size %BANKn_SIZE% -c src\L5data1.c		
+sdcc %CCFLAGS% -o	%BUILD%L5data2.rel		--codeseg BANK46 --code-size %BANKn_SIZE% -c src\L5data2.c		
+sdcc %CCFLAGS% -o	%BUILD%L5data3.rel		--codeseg BANK48 --code-size %BANKn_SIZE% -c src\L5data3.c		
+										
+sdcc %CCFLAGS% -o	%BUILD%data_levels.rel	--codeseg BANK50 --code-size %BANKn_SIZE% -c src\data_levels.c	
+sdcc %CCFLAGS% -o	%BUILD%data_sprites.rel	--codeseg BANK52 --code-size %BANKn_SIZE% -c src\data_sprites.c
+sdcc %CCFLAGS% -o	%BUILD%intro.rel		--codeseg BANK54 --code-size %BANKn_SIZE% -c src\intro.c	
 
 
-sdcc %CCFLAGS% -o %BUILD%mytestrom.rel 			--codeseg BANK0 --code-size %BANK0_SIZE% -c src\mytestrom.c 	
+REM sdcc %CCFLAGS% -o	%BUILD%audiodata.rel	--codeseg BANK58 --code-size %BANK0_SIZE% -c src\audiodata.c
 
-sdcc %CCFLAGS% -o  %BUILD%data0.rel				--codeseg BANK2 --code-size %BANKn_SIZE% -c src\data0.c		
-sdcc %CCFLAGS% -o  %BUILD%data1.rel				--codeseg BANK4 --code-size %BANKn_SIZE% -c src\data1.c		
 
-sdcc %CCFLAGS% -o  %BUILD%data_levels.rel		--codeseg BANK6 --code-size %BANKn_SIZE% -c src\data_levels.c	
-sdcc %CCFLAGS% -o  %BUILD%intro.rel				--codeseg BANK8 --code-size %BANKn_SIZE% -c src\intro.c	
-	
-
-sdcc %CCFLAGS% -o %BUILD%mytestrom.ihx --data-loc %RAM_ADDR% %BANKS_ADDR% %BUILD%megarom.rel  %BUILD%data0.rel %BUILD%data1.rel %BUILD%data_levels.rel %BUILD%intro.rel %BUILD%mytestrom.rel
+sdcc %CCFLAGS% -o %BUILD%mytestrom.ihx --data-loc %RAM_ADDR% %BANKS_ADDR% %BUILD%megarom.rel  %BUILD%L0data0.rel %BUILD%L0data1.rel %BUILD%L0data2.rel %BUILD%L0data3.rel  %BUILD%L1data0.rel %BUILD%L1data1.rel %BUILD%L1data2.rel %BUILD%L1data3.rel  %BUILD%L2data0.rel %BUILD%L2data1.rel %BUILD%L2data2.rel %BUILD%L2data3.rel  %BUILD%L3data0.rel %BUILD%L3data1.rel %BUILD%L3data2.rel %BUILD%L3data3.rel  %BUILD%L4data0.rel %BUILD%L4data1.rel %BUILD%L4data2.rel %BUILD%L4data3.rel  %BUILD%L5data0.rel %BUILD%L5data1.rel %BUILD%L5data2.rel %BUILD%L5data3.rel  %BUILD%audio.rel %BUILD%data_levels.rel %BUILD%data_sprites.rel %BUILD%intro.rel %BUILD%mytestrom.rel
 
 .\build_win\makerom.exe %BUILD%mytestrom.ihx mytestrom.rom
 
@@ -98,3 +129,5 @@ set OPENMSX_APP_PATH=F:\openMSX\
 set MSX_MACHINE_SCRIPT_PATH=F:\SDCC\MSX_Fusion-C_V1.3\WorkingFolder\sdcc_megarom-master\util\
 
 start /b /d %PARENT_DIR%\sdcc_megarom-master %OPENMSX_APP_PATH%openmsx.exe -script %MSX_MACHINE_SCRIPT_PATH%2-emul_start_MSX2_config.txt  -carta mytestrom.rom
+
+java -jar mdl.jar audio.asm -so-opt -po3 -asm auto -dialect sdcc -ansion
